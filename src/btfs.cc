@@ -98,10 +98,11 @@ jump(int piece, int size) {
 		return;
 
 	cursor = tail;
-
-	for (int i = 0; i < 16; i++) {
-		handle.piece_priority(tail++, 7);
-	}
+	// bas : 
+	//for (int i = 0; i < 16; i++) {
+	//	handle.piece_priority(tail++, 7);
+	//}
+	// bas
 }
 
 static void
@@ -126,6 +127,10 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 			ti->piece_size(part.piece) - part.start,
 			part.length);
 
+		// bas : passer la priorite de la piece demandee de 0 a 7 (priorite la plus elevee)
+		handle.piece_priority(part.piece,7);
+		// bas
+		
 		parts.push_back(Part(part, buf));
 
 		size -= (size_t) part.length;
@@ -197,9 +202,21 @@ int Read::read() {
 
 static void
 setup() {
+	printf("Prototype version.\n");
 	printf("Got metadata. Now ready to start downloading.\n");
 
 	auto ti = handle.torrent_file();
+	
+	//bas : initialiser les priorites de telechargement des blocs a 0
+	//i.e. pas de telechargement
+	std::vector<int>::size_type  numpieces =  (std::vector<int>::size_type) ti->num_pieces();
+	std::vector<int> prios(numpieces);
+	
+	for (std::vector<int>::size_type i = 0 ; i < numpieces ; i++)
+		prios[i]= 0 ;
+
+	handle.prioritize_pieces(prios);
+	//bas
 
 	if (params.browse_only)
 		handle.pause();
