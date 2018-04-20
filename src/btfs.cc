@@ -784,7 +784,7 @@ populate_target(std::string& target, char *arg) {
 		templ += arg;
 	} else if (getenv("HOME")) {
 		templ += getenv("HOME");
-		templ += "/btfs";
+		templ += "/.btfs";
 	} else {
 		templ += "/tmp/btfs";
 	}
