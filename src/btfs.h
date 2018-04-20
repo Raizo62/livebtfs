@@ -100,6 +100,14 @@ public:
 class Log : public std::ofstream
 {
 public:
+
+	Log(std::string p) {
+	}
+
+	~Log() {
+	}
+
+/*
 	Log(std::string p) : std::ofstream(p.c_str()), path(p) {
 		if (!is_open())
 			// If open log file fails, write to a dummy file
@@ -112,6 +120,7 @@ public:
 		if (remove(path.c_str()))
 			perror("Failed to remove log");
 	}
+*/
 
 private:
 	std::string path;
