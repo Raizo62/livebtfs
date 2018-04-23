@@ -206,15 +206,16 @@ setup() {
 	printf("Got metadata. Now ready to start downloading.\n");
 
 	auto ti = handle.torrent_file();
-	
+
 	//bas : initialiser les priorites de telechargement des blocs a 0
 	//i.e. pas de telechargement
 	std::vector<int>::size_type  numpieces =  (std::vector<int>::size_type) ti->num_pieces();
-	std::vector<int> prios(numpieces);
-	
+	//std::vector<int> prios(numpieces); // default value is already : 0
+	std::vector<int> prios(numpieces,0); // default value : 0
+/*
 	for (std::vector<int>::size_type i = 0 ; i < numpieces ; i++)
 		prios[i]= 0 ;
-
+*/
 	handle.prioritize_pieces(prios);
 	//bas
 
