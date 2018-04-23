@@ -65,7 +65,7 @@ pthread_t alert_thread;
 std::list<Read*> reads;
 
 // First piece index of the current sliding window
-int cursor;
+//int cursor;
 
 std::map<std::string,int> files;
 std::map<std::string,std::set<std::string> > dirs;
@@ -78,6 +78,7 @@ time_t time_of_mount;
 
 static struct btfs_params params;
 
+/*
 static bool
 move_to_next_unfinished(int& piece, int num_pieces) {
 	for (; piece < num_pieces; piece++) {
@@ -109,6 +110,7 @@ static void
 advance() {
 	jump(cursor, 0);
 }
+*/
 
 Read::Read(char *buf, int index, off_t offset, size_t size) {
 	auto ti = handle.torrent_file();
@@ -188,7 +190,7 @@ int Read::read() {
 	trigger();
 
 	// Move sliding window to first piece to serve this request
-	jump(parts.front().part.piece, size());
+	//jump(parts.front().part.piece, size());
 
 	while (!finished() && !failed)
 		// Wait for any piece to downloaded
@@ -296,7 +298,7 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a, Log *log) {
 	}
 
 	// Advance sliding window
-	advance();
+	//advance();
 
 	pthread_mutex_unlock(&lock);
 }
