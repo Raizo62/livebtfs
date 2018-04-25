@@ -659,19 +659,19 @@ btfs_init(struct fuse_conn_info *conn) {
 #endif
 */
 
-	pack.set_int(pack.request_timeout, 10);
-	pack.set_str(pack.listen_interfaces, interfaces.str());
-	pack.set_bool(pack.strict_end_game_mode, false);
-	pack.set_bool(pack.announce_to_all_trackers, true);
-	pack.set_bool(pack.announce_to_all_tiers, true);
-	pack.set_int(pack.download_rate_limit, params.max_download_rate * 1024);
-	pack.set_int(pack.upload_rate_limit, params.max_upload_rate * 1024);
-	pack.set_int(pack.alert_mask, alerts);
+	pack.set_int(libtorrent::settings_pack::request_timeout, 10);
+	pack.set_str(libtorrent::settings_pack::listen_interfaces, interfaces.str());
+	pack.set_bool(libtorrent::settings_pack::strict_end_game_mode, false);
+	pack.set_bool(libtorrent::settings_pack::announce_to_all_trackers, true);
+	pack.set_bool(libtorrent::settings_pack::announce_to_all_tiers, true);
+	pack.set_int(libtorrent::settings_pack::download_rate_limit, params.max_download_rate * 1024);
+	pack.set_int(libtorrent::settings_pack::upload_rate_limit, params.max_upload_rate * 1024);
+	pack.set_int(libtorrent::settings_pack::alert_mask, alerts);
 
-	pack.set_int(pack.seed_choking_algorithm, libtorrent::settings_pack::fastest_upload);
-	pack.set_bool(pack.prioritize_partial_pieces, true);
-	pack.set_bool(pack.close_redundant_connections, false);
-	pack.set_bool(pack.enable_dht, false);
+	pack.set_int(libtorrent::settings_pack::seed_choking_algorithm, libtorrent::settings_pack::fastest_upload);
+	pack.set_bool(libtorrent::settings_pack::prioritize_partial_pieces, true);
+	pack.set_bool(libtorrent::settings_pack::close_redundant_connections, false);
+	pack.set_bool(libtorrent::settings_pack::enable_dht, false);
 
 	session = new libtorrent::session(pack, flags);
 
