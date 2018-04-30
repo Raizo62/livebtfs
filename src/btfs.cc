@@ -194,8 +194,12 @@ int Read::read() {
 	//jump(parts.front().part.piece, size());
 
 	while (!finished() && !failed)
+	{
 		// Wait for any piece to downloaded
 		pthread_cond_wait(&signal_cond, &lock);
+
+		trigger();
+	}
 
 	if (failed)
 		return -EIO;
