@@ -165,12 +165,16 @@ void Read::trigger() {
 }
 
 bool Read::finished() {
+	bool finish=true;
+
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
+		if (handle.have_piece(i->part.piece))
+			handle.read_piece(i->part.piece);
 		if (!i->filled)
-			return false;
+			finish&=false;
 	}
 
-	return true;
+	return finish;
 }
 
 int Read::size() {
@@ -187,9 +191,6 @@ int Read::read() {
 	if (size() <= 0)
 		return 0;
 
-	// Trigger reads of finished pieces
-	trigger();
-
 	// Move sliding window to first piece to serve this request
 	//jump(parts.front().part.piece, size());
 
@@ -197,8 +198,6 @@ int Read::read() {
 	{
 		// Wait for any piece to downloaded
 		pthread_cond_wait(&signal_cond, &lock);
-
-		trigger();
 	}
 
 	if (failed)
