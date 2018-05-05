@@ -61,7 +61,6 @@ libtorrent::session *session = NULL;
 libtorrent::torrent_handle handle;
 
 pthread_t alert_thread;
-pthread_t debloque_thread;
 
 std::list<Read*> reads;
 
@@ -203,27 +202,10 @@ int Read::read() {
 		return size();
 }
 
-static void * debloque(void *arg){
-
-	int oldstate, oldtype;
-
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, &oldtype);
-
-	while(1){
-		pthread_cond_broadcast(&signal_cond);
-		sleep(5);
-	}
-
-	pthread_exit(NULL);
-}
-
 static void
 setup() {
 	printf("Prototype version.\n");
 	printf("Got metadata. Now ready to start downloading.\n");
-
-	pthread_create(&debloque_thread, NULL, debloque, NULL);
 
 	auto ti = handle.torrent_file();
 
@@ -722,9 +704,6 @@ btfs_init(struct fuse_conn_info *conn) {
 static void
 btfs_destroy(void *user_data) {
 	pthread_mutex_lock(&lock);
-
-	pthread_cancel(debloque_thread);
-	pthread_join(debloque_thread, NULL);
 
 	pthread_cancel(alert_thread);
 	pthread_join(alert_thread, NULL);
