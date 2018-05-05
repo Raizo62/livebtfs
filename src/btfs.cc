@@ -19,6 +19,8 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #define FUSE_USE_VERSION 26
 
+//#define _DEBUG
+
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
@@ -283,8 +285,10 @@ setup() {
 
 static void
 handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
+	#ifdef _DEBUG
 	printf("%s: piece %d size %d\n", __func__, static_cast<int>(a->piece),
 		a->size);
+	#endif
 
 	pthread_mutex_lock(&lock);
 
@@ -311,7 +315,9 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a, Log *log) {
 
 	int piece_to_found=static_cast<int>(a->piece_index);
 
+	#ifdef _DEBUG
 	printf("%s: %d\n", __func__, piece_to_found);
+	#endif
 
 	pthread_mutex_lock(&lock);
 
