@@ -156,6 +156,25 @@ void Read::copy(int piece, char *buffer, int size) {
 	}
 }
 
+void Read::seek_and_read (int numPiece) {
+	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
+		if ( i->part.piece == numPiece )
+		{
+			while ( ! handle.have_piece(i->part.piece) );
+
+			handle.read_piece(i->part.piece);
+		}
+		else
+		{
+			if ( ! i->filled )
+				if (handle.have_piece(i->part.piece))
+				{
+					handle.read_piece(i->part.piece);
+				}
+		}
+	}
+}
+
 void Read::trigger() {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if (handle.have_piece(i->part.piece))
@@ -289,12 +308,15 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 
 static void
 handle_piece_finished_alert(libtorrent::piece_finished_alert *a, Log *log) {
-	printf("%s: %d\n", __func__, static_cast<int>(a->piece_index));
+
+	int piece_to_found=static_cast<int>(a->piece_index);
+
+	printf("%s: %d\n", __func__, piece_to_found);
 
 	pthread_mutex_lock(&lock);
 
 	for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-		(*i)->trigger();
+		(*i)->seek_and_read(piece_to_found);
 	}
 
 	// Advance sliding window

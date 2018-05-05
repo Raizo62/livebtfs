@@ -66,6 +66,8 @@ public:
 
 	void trigger();
 
+	void seek_and_read (int numPiece);
+
 	bool finished();
 
 	int size();
