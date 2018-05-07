@@ -32,7 +32,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <fuse.h>
 
 // The below pragma lines will silence lots of compiler warnings in the
-// libtorrent headers file. Not btfs' fault.
+// libtorrent headers file. Not livebtfs' fault.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -51,7 +51,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <curl/curl.h>
 
-#include "btfs.h"
+#include "livebtfs.h"
 
 #define RETV(s, v) { s; return v; };
 #define STRINGIFY(s) #s
@@ -829,9 +829,9 @@ populate_target(std::string& target, char *arg) {
 		templ += arg;
 	} else if (getenv("HOME")) {
 		templ += getenv("HOME");
-		templ += "/.btfs";
+		templ += "/." PACKAGE;
 	} else {
-		templ += "/tmp/btfs";
+		templ += "/tmp/" PACKAGE;
 	}
 
 	if (mkdir(templ.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
@@ -839,7 +839,7 @@ populate_target(std::string& target, char *arg) {
 			RETV(perror("Failed to create target"), false);
 	}
 
-	templ += "/btfs-XXXXXX";
+	templ += "/" PACKAGE "-XXXXXX";
 
 	char *s = strdup(templ.c_str());
 
@@ -888,7 +888,7 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 		curl_easy_setopt(ch, CURLOPT_URL, uri.c_str());
 		curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, handle_http); 
 		curl_easy_setopt(ch, CURLOPT_WRITEDATA, (void *) &output); 
-		curl_easy_setopt(ch, CURLOPT_USERAGENT, "btfs/" VERSION);
+		curl_easy_setopt(ch, CURLOPT_USERAGENT, PACKAGE "/" VERSION);
 		curl_easy_setopt(ch, CURLOPT_FOLLOWLOCATION, 1);
 
 		CURLcode res = curl_easy_perform(ch);
@@ -1008,7 +1008,7 @@ static void
 print_help() {
 	printf("usage: " PACKAGE " [options] metadata mountpoint\n");
 	printf("\n");
-	printf("btfs options:\n");
+	printf(PACKAGE " options:\n");
 	printf("    --version -v           show version information\n");
 	printf("    --help -h              show this message\n");
 	printf("    --help-fuse            print all fuse options\n");
@@ -1055,7 +1055,7 @@ main(int argc, char *argv[]) {
 	}
 
 	if (params.help || params.help_fuse) {
-		// Print info about btfs' command line options
+		// Print info about livebtfs' command line options
 		print_help();
 
 		if (params.help_fuse) {

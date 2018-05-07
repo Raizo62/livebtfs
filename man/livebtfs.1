@@ -1,13 +1,13 @@
-.TH BTFS 1
+.TH LIVEBTFS 1
 .SH NAME
-btfs \- mount torrent files or magnet links as a file system
+livebtfs \- mount torrent files or magnet links as a file system
 .SH SYNOPSIS
-.B btfs
+.B livebtfs
 [\fIoptions\fP]
 \fBmetadata\fP
 \fBmountpoint\fP
 .SH DESCRIPTION
-.B btfs
+.B livebtfs
 allows one to mount any torrent file or a magnet link as a file
 system. The contents of the files will be downloaded on-demand
 as they are read by applications.
@@ -38,18 +38,20 @@ maximum download rate (in kilobytes per second)
 maximum upload rate (in kilobytes per second)
 .SH EXAMPLES
 mounting a torrent file:
-  btfs video.torrent ~/mnt
+  livebtfs video.torrent ~/mnt
 
 mounting a magnet link:
-  btfs 'magnet:?xt=urn:btih:...' ~/mnt
+  livebtfs 'magnet:?xt=urn:btih:...' ~/mnt
 
 unmounting:
   fusermount -u ~/mnt
 .SH BUGS
-Please report any bugs to https://github.com/johang/btfs.
+Please report any bugs to https://github.com/Raizo62/livebtfs.
 .PD
 .SH "AUTHORS"
 .LP
 BTFS has been written by Johan Gunnarsson <johan.gunnarsson@gmail.com>
+.LP
+BTFS has been modified to LIVEBTFS by Boussad Ait-Salem <baitsalem@gmail.com> and David Ansart
 .LP
 This man page was written by Donat Kh. <donat@opmbx.org>

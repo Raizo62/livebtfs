@@ -15,7 +15,7 @@
 #include <string>
 #include <iostream>
 
-#include "btfsstat.h"
+#include "livebtfsstat.h"
 
 #ifndef ENOATTR
 #define ENOATTR ENODATA
@@ -91,7 +91,7 @@ main(int argc, char *argv[]) {
 #else
 		if (getxattr(argv[i], XATTR_IS_BTFS, NULL, 0) < 0) {
 #endif
-			printf("%s: %s is not a btfs mount: %s\n", argv[0], argv[i],
+			printf("%s: %s is not a " PACKAGE " mount: %s\n", argv[0], argv[i],
 				strerror(errno));
 			return 2;
 		}
