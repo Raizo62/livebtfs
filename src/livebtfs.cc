@@ -678,14 +678,20 @@ btfs_init(struct fuse_conn_info *conn) {
 		STRINGIFY(LIBTORRENT_VERSION_MINOR)
 		"00";
 
-/*
-#if LIBTORRENT_VERSION_NUM >= 10101
-	pack.set_str(pack.dht_bootstrap_nodes,
-		"router.bittorrent.com:6881,"
-		"router.utorrent.com:6881,"
-		"dht.transmissionbt.com:6881");
-#endif
-*/
+	if ( params.disable_dht )
+	{
+		// disable DHT
+		pack.set_str(libtorrent::settings_pack::dht_bootstrap_nodes, "");
+		pack.set_bool(libtorrent::settings_pack::enable_dht, false);
+	}
+	else
+	{
+		// enable DHT
+		pack.set_str(libtorrent::settings_pack::dht_bootstrap_nodes,
+			"router.bittorrent.com:6881,"
+			"router.utorrent.com:6881,"
+			"dht.transmissionbt.com:6881");
+	}
 
 	//pack.set_int(libtorrent::settings_pack::request_timeout, 10);
 	pack.set_int(libtorrent::settings_pack::request_timeout, 60);
@@ -700,8 +706,6 @@ btfs_init(struct fuse_conn_info *conn) {
 	pack.set_int(libtorrent::settings_pack::seed_choking_algorithm, libtorrent::settings_pack::fastest_upload);
 	pack.set_bool(libtorrent::settings_pack::prioritize_partial_pieces, true);
 	pack.set_bool(libtorrent::settings_pack::close_redundant_connections, false);
-	pack.set_bool(libtorrent::settings_pack::enable_dht, false);
-	pack.set_str(libtorrent::settings_pack::dht_bootstrap_nodes, "");
 	pack.set_bool(libtorrent::settings_pack::allow_multiple_connections_per_ip, true);
 
 	session = new libtorrent::session(pack, flags);
@@ -983,6 +987,7 @@ static const struct fuse_opt btfs_opts[] = {
 	BTFS_OPT("--max-port=%lu",               max_port,             4),
 	BTFS_OPT("--max-download-rate=%lu",      max_download_rate,    4),
 	BTFS_OPT("--max-upload-rate=%lu",        max_upload_rate,      4),
+	BTFS_OPT("--disable-dht",                disable_dht,          1),
 	FUSE_OPT_END
 };
 
