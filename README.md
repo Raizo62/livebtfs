@@ -17,9 +17,9 @@ To unmount and shutdown:
 
 ## Dependencies (on Linux)
 
-* fuse ("fuse" in Ubuntu 16.04)
-* libtorrent ("libtorrent-rasterbar8" in Ubuntu 16.04)
-* libcurl ("libcurl3" in Ubuntu 16.04)
+* fuse : "fuse" in Debian / Ubuntu
+* libtorrent : "libtorrent-rasterbar9" in Debian / Ubuntu
+* libcurl : "libcurl3" in Debian / Ubuntu
 
 ## Building from git on a recent Debian/Ubuntu
 
