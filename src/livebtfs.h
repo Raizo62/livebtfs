@@ -77,6 +77,8 @@ public:
 private:
 	bool failed = false;
 
+	int _size;
+
 	std::vector<Part> parts;
 };
 

@@ -123,6 +123,8 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 	int64_t file_size = ti->files().file_size(index);
 #endif
 
+	_size=0;
+
 	while (size > 0 && offset < file_size) {
 		libtorrent::peer_request part = ti->map_file(index, offset,
 			(int) size);
@@ -194,13 +196,14 @@ bool Read::finished() {
 }
 
 int Read::size() {
-	int s = 0;
+	if ( _size ) // != 0 then already calculated
+		return _size;
 
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		s += i->part.length;
+		_size += i->part.length;
 	}
 
-	return s;
+	return _size;
 }
 
 int Read::read() {
