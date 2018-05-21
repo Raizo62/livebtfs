@@ -114,12 +114,16 @@ void Read::fail(int piece) {
 	}
 }
 
-void Read::copy(int piece, char *buffer, int size) {
+bool Read::copy(int piece, char *buffer, int size) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if (i->part.piece == piece && !i->filled)
+		{
 			i->filled = (memcpy(i->buf, buffer + i->part.start,
 				(size_t) i->part.length)) != NULL;
+			return true;
+		}
 	}
+	return false;
 }
 
 void Read::seek_and_read (int numPiece) {
@@ -254,7 +258,8 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 		}
 	} else {
 		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			(*i)->copy(a->piece, a->buffer.get(), a->size);
+			if ( (*i)->copy(a->piece, a->buffer.get(), a->size) )
+				break;
 		}
 	}
 
