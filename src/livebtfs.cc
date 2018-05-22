@@ -114,12 +114,14 @@ void Read::fail(int piece) {
 	}
 }
 
+// return true if piece is found
 bool Read::copy(int piece, char *buffer, int size) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if (i->part.piece == piece && !i->filled)
+		if (i->part.piece == piece )
 		{
-			i->filled = (memcpy(i->buf, buffer + i->part.start,
-				(size_t) i->part.length)) != NULL;
+			if( !i->filled )
+				i->filled = (memcpy(i->buf, buffer + i->part.start,
+					(size_t) i->part.length)) != NULL;
 			return true;
 		}
 	}
