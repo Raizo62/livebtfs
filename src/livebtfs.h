@@ -62,7 +62,7 @@ public:
 
 	void fail(int piece);
 
-	void copy(int piece, char *buffer, int size);
+	void copy(int piece, char *buffer);
 
 	void trigger();
 
