@@ -52,7 +52,9 @@ private:
 
 	char *buf;
 
-	bool filled;
+	bool asked=false;
+
+	bool filled=false;
 };
 
 class Read
