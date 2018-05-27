@@ -130,10 +130,10 @@ void Read::seek_and_read (int numPiece) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if ( i->part.piece == numPiece )
 		{
-			while ( ! i->filled && ! handle.have_piece(i->part.piece) );
+			while ( ! i->filled && ! handle.have_piece(numPiece) );
 
 			if ( ! i->filled )
-				handle.read_piece(i->part.piece);
+				handle.read_piece(numPiece);
 		}
 		else
 		{
