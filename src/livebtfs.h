@@ -70,14 +70,12 @@ public:
 
 	bool finished();
 
-	int size();
-
 	int read();
 
 private:
 	bool failed = false;
 
-	int _size;
+	int size=0;
 
 	std::vector<Part> parts;
 };
