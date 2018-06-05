@@ -38,13 +38,15 @@ class Read;
 typedef std::vector<Part>::iterator parts_iter;
 typedef std::list<Read*>::iterator reads_iter;
 
+enum type_state { empty, asked, filled };
+
 class Part
 {
 	friend class Read;
 
 public:
-	Part(libtorrent::peer_request p, char *b) : part(p), buf(b),
-			filled(false) {
+	Part(libtorrent::peer_request p, char *b) : part(p), buf(b)
+	{
 	}
 
 private:
@@ -52,9 +54,7 @@ private:
 
 	char *buf;
 
-	bool asked=false;
-
-	bool filled=false;
+	char state = empty;
 };
 
 class Read

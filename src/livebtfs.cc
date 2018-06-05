@@ -109,7 +109,7 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 
 void Read::fail(int piece) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if (i->part.piece == piece && !i->filled)
+		if (i->part.piece == piece && i->state != filled)
 			failed = true;
 	}
 }
@@ -118,9 +118,9 @@ void Read::copy(int piece, char *buffer) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if (i->part.piece == piece )
 		{
-			if( !i->filled )
-				i->filled = (memcpy(i->buf, buffer + i->part.start,
-					(size_t) i->part.length)) != NULL;
+			if( i->state != filled )
+				if ( (memcpy(i->buf, buffer + i->part.start, (size_t) i->part.length)) != NULL )
+					i->state = filled;
 			//return; // experimentally useful, but perhaps it depends of size of torrent's piece
 		}
 	}
@@ -129,20 +129,20 @@ void Read::copy(int piece, char *buffer) {
 void Read::seek_and_read (int numPiece) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i)
 	{
-		if ( ! i->asked && ! i->filled ) // global test because in pthread_mutex_lock(&lock);
+		if ( i->state == empty ) // global test because in pthread_mutex_lock(&lock);
 		{
 			if ( i->part.piece == numPiece )
 			{
 				while ( ! handle.have_piece(numPiece) );
 
-				i->asked=true;
+				i->state=asked;
 				handle.read_piece(numPiece);
 			}
 			else
 			{
 				if (handle.have_piece(i->part.piece))
 				{
-					i->asked=true;
+					i->state=asked;
 					handle.read_piece(i->part.piece);
 				}
 			}
@@ -159,7 +159,7 @@ void Read::trigger() {
 
 bool Read::finished() {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if (!i->filled)
+		if ( i->state != filled )
 			return false;
 	}
 
