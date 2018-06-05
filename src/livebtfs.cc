@@ -110,7 +110,10 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 void Read::fail(int piece) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if (i->part.piece == piece && i->state != filled)
+		{
 			failed = true;
+			return;
+		}
 	}
 }
 
