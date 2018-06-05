@@ -78,6 +78,7 @@ private:
 	bool failed = false;
 
 	int size=0;
+	int nbPieceNotFilled=0;
 
 	std::vector<Part> parts;
 };

@@ -94,6 +94,7 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 			part.length);
 
 		this->size+=part.length;
+		nbPieceNotFilled++;
 
 		// bas : passer la priorite de la piece demandee de 0 a 7 (priorite la plus elevee)
 		handle.piece_priority(part.piece,7);
@@ -123,7 +124,10 @@ void Read::copy(int piece, char *buffer) {
 		{
 			if( i->state != filled )
 				if ( (memcpy(i->buf, buffer + i->part.start, (size_t) i->part.length)) != NULL )
+				{
 					i->state = filled;
+					nbPieceNotFilled--;
+				}
 			return;
 		}
 	}
@@ -161,12 +165,7 @@ void Read::trigger() {
 }
 
 bool Read::finished() {
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if ( i->state != filled )
-			return false;
-	}
-
-	return true;
+	return ! nbPieceNotFilled;
 }
 
 int Read::read() {
