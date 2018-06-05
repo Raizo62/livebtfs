@@ -120,7 +120,9 @@ void Read::fail(int piece) {
 
 void Read::copy(int piece, char *buffer) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if (i->part.piece == piece )
+		if( i->part.piece > piece )
+			return;
+		if( i->part.piece == piece )
 		{
 			if( i->state != filled )
 				if ( (memcpy(i->buf, buffer + i->part.start, (size_t) i->part.length)) != NULL )
