@@ -73,7 +73,6 @@ std::map<std::string,int> files;
 std::map<std::string,std::set<std::string> > dirs;
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t signal_cond = PTHREAD_COND_INITIALIZER;
 
 // Time used as "last modified" time
 time_t time_of_mount;
@@ -82,6 +81,8 @@ static struct btfs_params params;
 
 Read::Read(char *buf, int index, off_t offset, size_t size) {
 	auto ti = handle.torrent_file();
+
+	pthread_mutex_lock (&waitFinished); // lock the mutex waitFinished
 
 	int64_t file_size = ti->files().file_size(index);
 
@@ -113,6 +114,7 @@ void Read::fail(int piece) {
 		if (i->part.piece == piece && i->state != filled)
 		{
 			failed = true;
+			pthread_mutex_unlock (&waitFinished);
 			return;
 		}
 	}
@@ -129,6 +131,8 @@ void Read::copy(int piece, char *buffer) {
 				{
 					i->state = filled;
 					nbPieceNotFilled--;
+					if ( finished() )
+						pthread_mutex_unlock (&waitFinished);
 				}
 			return;
 		}
@@ -177,9 +181,7 @@ int Read::read() {
 	// Trigger reads of finished pieces
 	trigger();
 
-	while (!finished() && !failed)
-		// Wait for any piece to downloaded
-		pthread_cond_wait(&signal_cond, &lock);
+	pthread_mutex_lock (&waitFinished); // lock because already lock by himself
 
 	if (failed)
 		return -EIO;
@@ -261,9 +263,6 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 	}
 
 	pthread_mutex_unlock(&lock);
-
-	// Wake up all threads waiting for download
-	pthread_cond_broadcast(&signal_cond);
 }
 
 static void
@@ -502,8 +501,12 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 
 	reads.push_back(r);
 
+	pthread_mutex_unlock(&lock);
+
 	// Wait for read to finish
 	int s = r->read();
+
+	pthread_mutex_lock(&lock);
 
 	reads.remove(r);
 

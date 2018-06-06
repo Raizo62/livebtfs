@@ -24,6 +24,8 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <fstream>
 
+#include <pthread.h>
+
 #include "libtorrent/config.hpp"
 #include <libtorrent/peer_request.hpp>
 
@@ -79,6 +81,8 @@ private:
 
 	int size=0;
 	int nbPieceNotFilled=0;
+
+	pthread_mutex_t waitFinished = PTHREAD_MUTEX_INITIALIZER;
 
 	std::vector<Part> parts;
 };
