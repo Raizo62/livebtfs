@@ -148,6 +148,7 @@ struct btfs_params {
 	const char *metadata;
 	int disable_dht;
 	int disable_upnp;
+	int disable_natpmp;
 };
 
 }
