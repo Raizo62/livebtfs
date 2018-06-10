@@ -147,6 +147,7 @@ struct btfs_params {
 	int max_upload_rate;
 	const char *metadata;
 	int disable_dht;
+	int disable_upnp;
 };
 
 }
