@@ -607,6 +607,9 @@ btfs_init(struct fuse_conn_info *conn) {
 	if ( params.disable_natpmp )
 		pack.set_bool(libtorrent::settings_pack::enable_natpmp, false);
 
+	if ( params.disable_lsd )
+		pack.set_bool(libtorrent::settings_pack::enable_lsd, false);
+
 	pack.set_int(libtorrent::settings_pack::request_timeout, 60);
 	pack.set_int(libtorrent::settings_pack::peer_timeout, 60);
 
@@ -895,6 +898,7 @@ static const struct fuse_opt btfs_opts[] = {
 	BTFS_OPT("--disable-dht",                disable_dht,          1),
 	BTFS_OPT("--disable-upnp",               disable_upnp,         1),
 	BTFS_OPT("--disable-natpmp",             disable_natpmp,       1),
+	BTFS_OPT("--disable-lsd",                disable_lsd,          1),
 	FUSE_OPT_END
 };
 
@@ -933,6 +937,7 @@ print_help() {
 	printf("    --disable-dht          disable the usage of DHT\n");
 	printf("    --disable-upnp         disable the UPnP service\n");
 	printf("    --disable-natpmp       disable the NAT-PMP service\n");
+	printf("    --disable-lsd          disable Local Service Discovery\n");
 }
 
 int

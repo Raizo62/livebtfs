@@ -149,6 +149,7 @@ struct btfs_params {
 	int disable_dht;
 	int disable_upnp;
 	int disable_natpmp;
+	int disable_lsd;
 };
 
 }
