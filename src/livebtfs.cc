@@ -166,7 +166,10 @@ void Read::seek_and_read (int numPiece) {
 void Read::trigger() {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if (handle.have_piece(i->part.piece))
+		{
+			i->state=asked;
 			handle.read_piece(i->part.piece);
+		}
 	}
 }
 
