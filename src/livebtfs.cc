@@ -173,7 +173,7 @@ void Read::trigger() {
 	}
 }
 
-bool Read::finished() {
+inline bool Read::finished() {
 	return ! nbPieceNotFilled;
 }
 
