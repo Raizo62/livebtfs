@@ -79,6 +79,43 @@ time_t time_of_mount;
 
 static struct btfs_params params;
 
+// logically, 1 piece must be empty when this this function is called
+void Read::verify_to_ask (int numPiece) {
+
+	if ( ! handle.have_piece(numPiece) )
+		return;
+
+	bool ask_sended = false;
+
+	for (reads_iter read_it = reads.begin(); read_it != reads.end(); ++read_it)
+	{
+		for (parts_iter part_it = (*read_it)->parts.begin(); part_it != (*read_it)->parts.end(); ++part_it)
+		{
+			if( part_it->part.piece > numPiece )
+				break;
+
+			if ( part_it->part.piece == numPiece )
+			{
+				if ( part_it->state == empty )
+				{
+					if( ! ask_sended )
+					{
+						handle.read_piece(numPiece);
+						ask_sended=true;
+					}
+
+					part_it->state=asked;
+					break;
+				}
+				else if ( part_it->state == asked )
+				{ // piece has been already asked then i learn that
+					ask_sended=true;
+				}
+			}
+		}
+	}
+}
+
 Read::Read(char *buf, int index, off_t offset, size_t size) {
 	auto ti = handle.torrent_file();
 
@@ -139,38 +176,44 @@ void Read::copy(int piece, char *buffer) {
 	}
 }
 
-void Read::seek_and_read (int numPiece) {
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i)
-	{
-		if ( i->state == empty ) // global test because in pthread_mutex_lock(&lock);
-		{
-			if ( i->part.piece == numPiece )
-			{
-				while ( ! handle.have_piece(numPiece) );
+void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 
-				i->state=asked;
-				handle.read_piece(numPiece);
-			}
-			else
+	for (parts_iter part_it = parts.begin(); part_it != parts.end(); ++part_it)
+	{
+		if( part_it->part.piece > numPiece )
+			break;
+
+		if ( part_it->part.piece == numPiece )
+		{
+			if ( part_it->state == empty )
 			{
-				if (handle.have_piece(i->part.piece))
+				if ( ! ask_sended )
 				{
-					i->state=asked;
-					handle.read_piece(i->part.piece);
+					while ( ! handle.have_piece(numPiece) );
+
+					handle.read_piece(numPiece);
+					ask_sended=true;
 				}
+
+				part_it->state=asked;
+				break;
+			}
+			else if ( part_it->state == asked )
+			{ // piece has been already asked then i learn that
+				ask_sended=true;
 			}
 		}
 	}
 }
 
 void Read::trigger() {
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if (handle.have_piece(i->part.piece))
-		{
-			i->state=asked;
-			handle.read_piece(i->part.piece);
-		}
-	}
+
+	pthread_mutex_lock(&lock);
+
+	for (parts_iter i = parts.begin(); i != parts.end(); ++i)
+		verify_to_ask(i->part.piece);
+
+	pthread_mutex_unlock(&lock);
 }
 
 inline bool Read::finished() {
@@ -271,17 +314,18 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 static void
 handle_piece_finished_alert(libtorrent::piece_finished_alert *a, Log *log) {
 
-	int piece_to_found=static_cast<int>(a->piece_index);
+	int numPiece=static_cast<int>(a->piece_index);
 
 	#ifdef _DEBUG
-	printf("%s: %d\n", __func__, piece_to_found);
+	printf("%s: %d\n", __func__, numPiece);
 	#endif
+
+	bool ask_sended=false;
 
 	pthread_mutex_lock(&lock);
 
-	for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-		(*i)->seek_and_read(piece_to_found);
-	}
+	for (reads_iter i = reads.begin(); i != reads.end(); ++i)
+		(*i)->seek_to_ask(numPiece, ask_sended);
 
 	pthread_mutex_unlock(&lock);
 }
