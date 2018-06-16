@@ -303,8 +303,9 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 			(*i)->fail(a->piece);
 		}
 	} else {
+		char* buffer=a->buffer.get();
 		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			(*i)->copy(a->piece, a->buffer.get()); // not break because piece can be in other of reads
+			(*i)->copy(a->piece, buffer); // not break because piece can be in other of reads
 		}
 	}
 
