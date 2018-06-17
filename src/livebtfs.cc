@@ -716,6 +716,9 @@ btfs_destroy(void *user_data) {
 
 	session->remove_torrent(handle, flags);
 
+	for (reads_iter i = reads.begin(); i != reads.end(); ++i)
+		(*i)->isFinished();
+
 	delete session;
 
 	pthread_mutex_unlock(&lock);
