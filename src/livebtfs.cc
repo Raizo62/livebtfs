@@ -151,7 +151,7 @@ void Read::fail(int piece) {
 		if (i->part.piece == piece && i->state != filled)
 		{
 			failed = true;
-			pthread_mutex_unlock (&waitFinished);
+			isFinished();
 			return;
 		}
 	}
@@ -169,7 +169,7 @@ void Read::copy(int piece, char *buffer) {
 					i->state = filled;
 					nbPieceNotFilled--;
 					if ( finished() )
-						pthread_mutex_unlock (&waitFinished);
+						isFinished();
 				}
 			return;
 		}
@@ -214,6 +214,10 @@ void Read::trigger() {
 		verify_to_ask(i->part.piece);
 
 	pthread_mutex_unlock(&lock);
+}
+
+void Read::isFinished() {
+	pthread_mutex_unlock (&waitFinished);
 }
 
 inline bool Read::finished() {

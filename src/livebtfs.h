@@ -74,6 +74,7 @@ public:
 	void verify_to_ask (int numPiece);
 
 	bool finished();
+	void isFinished();
 
 	int read();
 
