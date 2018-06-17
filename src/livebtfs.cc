@@ -294,7 +294,7 @@ setup() {
 }
 
 static void
-handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
+handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 	#ifdef _DEBUG
 	printf("%s: piece %d size %d\n", __func__, static_cast<int>(a->piece),
 		a->size);
@@ -303,7 +303,7 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 	pthread_mutex_lock(&lock);
 
 	if (a->ec) {
-		*log << a->message() << std::endl;
+		std::cout << a->message() << std::endl;
 
 		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
 			(*i)->fail(a->piece);
@@ -319,7 +319,7 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a, Log *log) {
 }
 
 static void
-handle_piece_finished_alert(libtorrent::piece_finished_alert *a, Log *log) {
+handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 
 	int numPiece=static_cast<int>(a->piece_index);
 
@@ -338,7 +338,7 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a, Log *log) {
 }
 
 static void
-handle_torrent_added_alert(libtorrent::torrent_added_alert *a, Log *log) {
+handle_torrent_added_alert(libtorrent::torrent_added_alert *a) {
 	pthread_mutex_lock(&lock);
 
 	handle = a->handle;
@@ -350,8 +350,7 @@ handle_torrent_added_alert(libtorrent::torrent_added_alert *a, Log *log) {
 }
 
 static void
-handle_metadata_received_alert(libtorrent::metadata_received_alert *a,
-		Log *log) {
+handle_metadata_received_alert(libtorrent::metadata_received_alert *a) {
 	pthread_mutex_lock(&lock);
 
 	handle = a->handle;
@@ -367,30 +366,32 @@ handle_torrent_removed_alert() {
 }
 
 static void
-handle_alert(libtorrent::alert *a, Log *log) {
+handle_alert(libtorrent::alert *a) {
+
+	//std::cout << a->message() << std::endl;
 
 	switch (a->type()) {
 	case libtorrent::read_piece_alert::alert_type:
 		handle_read_piece_alert(
-			(libtorrent::read_piece_alert *) a, log);
+			(libtorrent::read_piece_alert *) a);
 		break;
 	case libtorrent::piece_finished_alert::alert_type:
-		*log << a->message() << std::endl;
+		//std::cout << a->message() << std::endl;
 		handle_piece_finished_alert(
-			(libtorrent::piece_finished_alert *) a, log);
+			(libtorrent::piece_finished_alert *) a);
 		break;
 	case libtorrent::metadata_received_alert::alert_type:
-		*log << a->message() << std::endl;
+		//std::cout << a->message() << std::endl;
 		handle_metadata_received_alert(
-			(libtorrent::metadata_received_alert *) a, log);
+			(libtorrent::metadata_received_alert *) a);
 		break;
 	case libtorrent::torrent_added_alert::alert_type:
-		*log << a->message() << std::endl;
+		//std::cout << a->message() << std::endl;
 		handle_torrent_added_alert(
-			(libtorrent::torrent_added_alert *) a, log);
+			(libtorrent::torrent_added_alert *) a);
 		break;
 	case libtorrent::dht_bootstrap_alert::alert_type:
-		*log << a->message() << std::endl;
+		//std::cout << a->message() << std::endl;
 		// Force DHT announce because libtorrent won't by itself
 		handle.force_dht_announce();
 		break;
@@ -402,10 +403,10 @@ handle_alert(libtorrent::alert *a, Log *log) {
 	case libtorrent::tracker_warning_alert::alert_type:
 	case libtorrent::tracker_error_alert::alert_type:
 	case libtorrent::lsd_peer_alert::alert_type:
-		*log << a->message() << std::endl;
+		//std::cout << a->message() << std::endl;
 		break;
 	case libtorrent::stats_alert::alert_type:
-		//*log << a->message() << std::endl;
+		//std::cout << a->message() << std::endl;
 		break;
 	case libtorrent::torrent_removed_alert::alert_type:
 		handle_torrent_removed_alert();
@@ -415,13 +416,8 @@ handle_alert(libtorrent::alert *a, Log *log) {
 	}
 }
 
-
 static void
 alert_queue_loop_destroy(void *data) {
-	Log *log = (Log *) data;
-
-	if (log)
-		delete log;
 }
 
 static void*
@@ -431,7 +427,7 @@ alert_queue_loop(void *data) {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldtype);
 
-	pthread_cleanup_push(&alert_queue_loop_destroy, data);
+	pthread_cleanup_push(&alert_queue_loop_destroy, NULL);
 
 	while (1) {
 		if (!session->wait_for_alert(libtorrent::seconds(1)))
@@ -443,7 +439,7 @@ alert_queue_loop(void *data) {
 
 		for (std::vector<libtorrent::alert*>::iterator i =
 				alerts.begin(); i != alerts.end(); ++i) {
-			handle_alert(*i, (Log *) data);
+			handle_alert(*i);
 		}
 	}
 
@@ -696,8 +692,7 @@ btfs_init(struct fuse_conn_info *conn) {
 
 	session->add_torrent(*p);
 
-	pthread_create(&alert_thread, NULL, alert_queue_loop,
-		new Log(p->save_path + "/../log.txt"));
+	pthread_create(&alert_thread, NULL, alert_queue_loop, NULL);
 
 #ifdef HAVE_PTHREAD_SETNAME_NP
 	pthread_setname_np(alert_thread, "alert");
