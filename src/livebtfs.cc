@@ -74,6 +74,8 @@ std::map<std::string,std::set<std::string> > dirs;
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
+pthread_mutex_t wait_torrent_removed_alert = PTHREAD_MUTEX_INITIALIZER;
+
 // Time used as "last modified" time
 time_t time_of_mount;
 
@@ -360,7 +362,13 @@ handle_metadata_received_alert(libtorrent::metadata_received_alert *a,
 }
 
 static void
+handle_torrent_removed_alert() {
+	pthread_mutex_unlock(&wait_torrent_removed_alert);
+}
+
+static void
 handle_alert(libtorrent::alert *a, Log *log) {
+
 	switch (a->type()) {
 	case libtorrent::read_piece_alert::alert_type:
 		handle_read_piece_alert(
@@ -399,10 +407,12 @@ handle_alert(libtorrent::alert *a, Log *log) {
 	case libtorrent::stats_alert::alert_type:
 		//*log << a->message() << std::endl;
 		break;
+	case libtorrent::torrent_removed_alert::alert_type:
+		handle_torrent_removed_alert();
+		break;
 	default:
 		break;
 	}
-
 }
 
 
@@ -702,9 +712,6 @@ static void
 btfs_destroy(void *user_data) {
 	pthread_mutex_lock(&lock);
 
-	pthread_cancel(alert_thread);
-	pthread_join(alert_thread, NULL);
-
 #if LIBTORRENT_VERSION_NUM < 10200
 	int flags = 0;
 #else
@@ -716,8 +723,15 @@ btfs_destroy(void *user_data) {
 
 	session->remove_torrent(handle, flags);
 
+	pthread_mutex_lock(&wait_torrent_removed_alert); // initialize to lock to the next time
+
 	for (reads_iter i = reads.begin(); i != reads.end(); ++i)
 		(*i)->isFinished();
+
+	pthread_mutex_lock(&wait_torrent_removed_alert); // lock until torrent_removed_alert message
+
+	pthread_cancel(alert_thread);
+	pthread_join(alert_thread, NULL);
 
 	delete session;
 
