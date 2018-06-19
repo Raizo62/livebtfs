@@ -617,6 +617,7 @@ btfs_init(struct fuse_conn_info *conn) {
 #else
 	libtorrent::alert_category_t alerts =
 #endif
+#ifdef _DEBUG
 		libtorrent::alert::tracker_notification |
 		libtorrent::alert::stats_notification |
 		libtorrent::alert::storage_notification |
@@ -625,6 +626,12 @@ btfs_init(struct fuse_conn_info *conn) {
 		libtorrent::alert::error_notification |
 		libtorrent::alert::dht_notification |
 		libtorrent::alert::peer_notification;
+#else
+		libtorrent::alert::storage_notification | // read_piece_alert
+		libtorrent::alert::progress_notification | // piece_finished_alert
+		libtorrent::alert::status_notification | // metadata_received_alert , torrent_added_alert , torrent_removed_alert
+		libtorrent::alert::error_notification;
+#endif
 
 	libtorrent::settings_pack pack;
 
