@@ -395,6 +395,7 @@ handle_alert(libtorrent::alert *a) {
 		// Force DHT announce because libtorrent won't by itself
 		handle.force_dht_announce();
 		break;
+#ifdef _DEBUG
 	case libtorrent::dht_announce_alert::alert_type:
 	case libtorrent::dht_reply_alert::alert_type:
 	case libtorrent::metadata_failed_alert::alert_type:
@@ -408,6 +409,7 @@ handle_alert(libtorrent::alert *a) {
 	case libtorrent::stats_alert::alert_type:
 		//std::cout << a->message() << std::endl;
 		break;
+#endif
 	case libtorrent::torrent_removed_alert::alert_type:
 		handle_torrent_removed_alert();
 		break;
