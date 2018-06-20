@@ -431,12 +431,12 @@ alert_queue_loop(void *data) {
 
 	pthread_cleanup_push(&alert_queue_loop_destroy, NULL);
 
+	std::vector<libtorrent::alert*> alerts;
+
 	while (1) {
 		// wait_for_alert is unlock as soon as new alert
 		if (!session->wait_for_alert(libtorrent::seconds(3600)))
 			continue;
-
-		std::vector<libtorrent::alert*> alerts;
 
 		session->pop_alerts(&alerts);
 
