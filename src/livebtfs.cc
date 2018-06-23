@@ -556,9 +556,9 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 	if (params.browse_only)
 		return -EACCES;
 
-	pthread_mutex_lock(&lock);
-
 	Read *r = new Read(buf, files[path], offset, size);
+
+	pthread_mutex_lock(&lock);
 
 	reads.push_back(r);
 
@@ -571,9 +571,9 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 
 	reads.remove(r);
 
-	delete r;
-
 	pthread_mutex_unlock(&lock);
+
+	delete r;
 
 	return s;
 }
