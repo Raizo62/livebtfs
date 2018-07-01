@@ -698,6 +698,9 @@ btfs_init(struct fuse_conn_info *conn) {
 	pack.set_bool(libtorrent::settings_pack::close_redundant_connections, false);
 	pack.set_bool(libtorrent::settings_pack::allow_multiple_connections_per_ip, true);
 
+	// read a piece the next time is faster :
+	pack.set_int(libtorrent::settings_pack::tick_interval,30);
+
 	session = new libtorrent::session(pack, flags);
 
 	session->add_torrent(*p);
