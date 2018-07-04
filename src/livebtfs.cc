@@ -191,8 +191,6 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 			{
 				if ( ! ask_sended )
 				{
-					while ( ! handle.have_piece(numPiece) );
-
 					handle.read_piece(numPiece);
 					ask_sended=true;
 				}
@@ -328,6 +326,9 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 	#endif
 
 	bool ask_sended=false;
+
+	// wait that libtorrent has really this piece
+	while ( ! handle.have_piece(numPiece) );
 
 	pthread_mutex_lock(&lock);
 
