@@ -107,12 +107,13 @@ void Read::verify_to_ask (int numPiece) {
 					}
 
 					part_it->state=asked;
-					break;
 				}
 				else if ( part_it->state == asked )
 				{ // piece has been already asked then i learn that
 					ask_sended=true;
 				}
+
+				break;
 			}
 		}
 	}
@@ -196,12 +197,13 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 				}
 
 				part_it->state=asked;
-				break;
 			}
 			else if ( part_it->state == asked )
 			{ // piece has been already asked then i learn that
 				ask_sended=true;
 			}
+
+			break;
 		}
 	}
 }
