@@ -25,6 +25,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include <pthread.h>
+#include <thread>
 
 #include "libtorrent/config.hpp"
 #include <libtorrent/peer_request.hpp>
@@ -35,6 +36,7 @@ namespace btfs
 {
 
 class Part;
+class InfosCopy;
 class Read;
 
 typedef std::vector<Part>::iterator parts_iter;
@@ -59,6 +61,18 @@ private:
 	char state = empty;
 };
 
+class InfosCopy {
+
+public :
+	InfosCopy(int p , char * b){
+		num_piece = p ;
+		buffer = b ;
+	}
+
+	int num_piece ;
+	char * buffer ;
+};
+
 class Read
 {
 public:
@@ -67,6 +81,7 @@ public:
 	void fail(int piece);
 
 	void copy(int piece, char *buffer);
+	void copy_async(InfosCopy * inf) ;
 
 	void trigger();
 
