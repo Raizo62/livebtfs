@@ -89,16 +89,16 @@ void Read::verify_to_ask (int numPiece) {
 
 	bool ask_sended = false;
 
-	for (reads_iter read_it = reads.begin(); read_it != reads.end(); ++read_it)
+	for(auto& read_it: reads)
 	{
-		for (parts_iter part_it = (*read_it)->parts.begin(); part_it != (*read_it)->parts.end(); ++part_it)
+		for(auto& part_it: read_it->parts)
 		{
-			if( part_it->part.piece > numPiece )
+			if( part_it.part.piece > numPiece )
 				break;
 
-			if ( part_it->part.piece == numPiece )
+			if ( part_it.part.piece == numPiece )
 			{
-				if ( part_it->state == empty )
+				if ( part_it.state == empty )
 				{
 					if( ! ask_sended )
 					{
@@ -106,9 +106,9 @@ void Read::verify_to_ask (int numPiece) {
 						ask_sended=true;
 					}
 
-					part_it->state=asked;
+					part_it.state=asked;
 				}
-				else if ( part_it->state == asked )
+				else if ( part_it.state == asked )
 				{ // piece has been already asked then i learn that
 					ask_sended=true;
 				}
@@ -150,8 +150,9 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 }
 
 void Read::fail(int piece) {
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if (i->part.piece == piece && i->state != filled)
+	for(auto& i: parts)
+	{
+		if (i.part.piece == piece && i.state != filled)
 		{
 			failed = true;
 			isFinished();
@@ -161,15 +162,16 @@ void Read::fail(int piece) {
 }
 
 void Read::copy(int piece, char *buffer) {
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if( i->part.piece > piece )
+	for(auto& i: parts)
+	{
+		if( i.part.piece > piece )
 			return;
-		if( i->part.piece == piece )
+		if( i.part.piece == piece )
 		{
-			if( i->state != filled )
-				if ( (memcpy(i->buf, buffer + i->part.start, (size_t) i->part.length)) != NULL )
+			if( i.state != filled )
+				if ( (memcpy(i.buf, buffer + i.part.start, (size_t) i.part.length)) != NULL )
 				{
-					i->state = filled;
+					i.state = filled;
 					nbPieceNotFilled--;
 					if ( finished() )
 						isFinished();
@@ -181,14 +183,14 @@ void Read::copy(int piece, char *buffer) {
 
 void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 
-	for (parts_iter part_it = parts.begin(); part_it != parts.end(); ++part_it)
+	for(auto& part_it: parts)
 	{
-		if( part_it->part.piece > numPiece )
+		if( part_it.part.piece > numPiece )
 			break;
 
-		if ( part_it->part.piece == numPiece )
+		if ( part_it.part.piece == numPiece )
 		{
-			if ( part_it->state == empty )
+			if ( part_it.state == empty )
 			{
 				if ( ! ask_sended )
 				{
@@ -196,9 +198,9 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 					ask_sended=true;
 				}
 
-				part_it->state=asked;
+				part_it.state=asked;
 			}
-			else if ( part_it->state == asked )
+			else if ( part_it.state == asked )
 			{ // piece has been already asked then i learn that
 				ask_sended=true;
 			}
@@ -212,8 +214,8 @@ void Read::trigger() {
 
 	pthread_mutex_lock(&lock);
 
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i)
-		verify_to_ask(i->part.piece);
+	for(auto& i: parts)
+		verify_to_ask(i.part.piece);
 
 	pthread_mutex_unlock(&lock);
 }
@@ -311,18 +313,18 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 	if (a->ec) {
 		std::cout << a->message() << std::endl;
 
-		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			(*i)->fail(a->piece);
+		for(auto& i: reads) {
+			i->fail(a->piece);
 		}
 	} else {
 
-		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			threads.emplace_back( &Read::copy,(*i),numPiece,buffer);
+		for(auto& i: reads) {
+			threads.emplace_back( &Read::copy, i,numPiece,buffer);
 		}
 	}
 
-	for (std::vector<std::thread>::iterator i = threads.begin(); i != threads.end(); ++i)
-		i->join();
+	for(auto& i: threads)
+		i.join();
 
 	// must be after "join" because "btfs_reads" want also to read reads/parts :
 	pthread_mutex_unlock(&lock);
@@ -371,8 +373,8 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 
 	pthread_mutex_lock(&lock);
 
-	for (reads_iter i = reads.begin(); i != reads.end(); ++i)
-		(*i)->seek_to_ask(numPiece, ask_sended);
+	for(auto& i: reads)
+		i->seek_to_ask(numPiece, ask_sended);
 
 	pthread_mutex_unlock(&lock);
 }
@@ -480,10 +482,8 @@ alert_queue_loop(void *data) {
 
 		session->pop_alerts(&alerts);
 
-		for (std::vector<libtorrent::alert*>::iterator i =
-				alerts.begin(); i != alerts.end(); ++i) {
-			handle_alert(*i);
-		}
+		for(auto& i: alerts)
+			handle_alert(i);
 	}
 
 	pthread_cleanup_pop(1);
@@ -560,10 +560,8 @@ btfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	filler(buf, ".", NULL, 0);
 	filler(buf, "..", NULL, 0);
 
-	for (std::set<std::string>::iterator i = dirs[path].begin();
-			i != dirs[path].end(); ++i) {
-		filler(buf, i->c_str(), NULL, 0);
-	}
+	for(auto& i: dirs[path])
+		filler(buf, i.c_str(), NULL, 0);
 
 	pthread_mutex_unlock(&lock);
 
@@ -773,8 +771,8 @@ btfs_destroy(void *user_data) {
 
 	pthread_mutex_lock(&wait_torrent_removed_alert); // initialize to lock to the next time
 
-	for (reads_iter i = reads.begin(); i != reads.end(); ++i)
-		(*i)->isFinished();
+	for(auto& i: reads)
+		i->isFinished();
 
 	pthread_mutex_lock(&wait_torrent_removed_alert); // lock until torrent_removed_alert message
 

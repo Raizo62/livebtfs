@@ -38,9 +38,6 @@ namespace btfs
 class Part;
 class Read;
 
-typedef std::vector<Part>::iterator parts_iter;
-typedef std::list<Read*>::iterator reads_iter;
-
 enum type_state { empty, asked, filled };
 
 class Part
