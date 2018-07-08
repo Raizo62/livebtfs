@@ -665,6 +665,14 @@ btfs_init(struct fuse_conn_info *conn) {
 		STRINGIFY(LIBTORRENT_VERSION_MINOR)
 		"00";
 
+	if ( params.disable_all )
+	{
+		params.disable_dht=1;
+		params.disable_upnp=1;
+		params.disable_natpmp=1;
+		params.disable_lsd=1;
+	}
+
 	if ( params.disable_dht )
 	{
 		// disable DHT
@@ -987,6 +995,7 @@ static const struct fuse_opt btfs_opts[] = {
 	BTFS_OPT("--disable-upnp",               disable_upnp,         1),
 	BTFS_OPT("--disable-natpmp",             disable_natpmp,       1),
 	BTFS_OPT("--disable-lsd",                disable_lsd,          1),
+	BTFS_OPT("--disable-all",                disable_all,          1),
 	FUSE_OPT_END
 };
 
@@ -1026,6 +1035,7 @@ print_help() {
 	printf("    --disable-upnp         disable the UPnP service\n");
 	printf("    --disable-natpmp       disable the NAT-PMP service\n");
 	printf("    --disable-lsd          disable Local Service Discovery\n");
+	printf("    --disable-all          same as : --disable-dht --disable-upnp --disable-natpmp --disable-lsd\n");
 }
 
 int
