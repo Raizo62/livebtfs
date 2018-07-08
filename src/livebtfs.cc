@@ -220,7 +220,7 @@ void Read::trigger() {
 	pthread_mutex_unlock(&lock);
 }
 
-void Read::isFinished() {
+inline void Read::isFinished() {
 	pthread_mutex_unlock (&waitFinished);
 }
 
