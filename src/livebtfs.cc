@@ -330,33 +330,6 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 	pthread_mutex_unlock(&lock);
 }
 
-/*
-static void
-handle_read_piece_alert(libtorrent::read_piece_alert *a) {
-	#ifdef _DEBUG
-	printf("%s: piece %d size %d\n", __func__, static_cast<int>(a->piece),
-		a->size);
-	#endif
-
-	pthread_mutex_lock(&lock);
-
-	if (a->ec) {
-		std::cout << a->message() << std::endl;
-
-		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			(*i)->fail(a->piece);
-		}
-	} else {
-		char* buffer=a->buffer.get();
-		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			(*i)->copy(a->piece, buffer); // not break because piece can be in other of reads
-		}
-	}
-
-	pthread_mutex_unlock(&lock);
-}
-*/
-
 static void
 handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 
