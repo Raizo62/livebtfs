@@ -81,44 +81,6 @@ time_t time_of_mount;
 
 static struct btfs_params params;
 
-// logically, 1 piece must be empty when this this function is called
-void Read::verify_to_ask (int numPiece) {
-
-	if ( ! handle.have_piece(numPiece) )
-		return;
-
-	bool ask_sended = false;
-
-	for(auto& read_it: reads)
-	{
-		for(auto& part_it: read_it->parts)
-		{
-			if( part_it.part.piece > numPiece )
-				break;
-
-			if ( part_it.part.piece == numPiece )
-			{
-				if ( part_it.state == empty )
-				{
-					if( ! ask_sended )
-					{
-						handle.read_piece(numPiece);
-						ask_sended=true;
-					}
-
-					part_it.state=asked;
-				}
-				else if ( part_it.state == asked )
-				{ // piece has been already asked then i learn that
-					ask_sended=true;
-				}
-
-				break;
-			}
-		}
-	}
-}
-
 Read::Read(char *buf, int index, off_t offset, size_t size) {
 	auto ti = handle.torrent_file();
 
@@ -206,6 +168,44 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 			}
 
 			break;
+		}
+	}
+}
+
+// logically, 1 piece must be empty when this this function is called
+void Read::verify_to_ask (int numPiece) {
+
+	if ( ! handle.have_piece(numPiece) )
+		return;
+
+	bool ask_sended = false;
+
+	for(auto& read_it: reads)
+	{
+		for(auto& part_it: read_it->parts)
+		{
+			if( part_it.part.piece > numPiece )
+				break;
+
+			if ( part_it.part.piece == numPiece )
+			{
+				if ( part_it.state == empty )
+				{
+					if( ! ask_sended )
+					{
+						handle.read_piece(numPiece);
+						ask_sended=true;
+					}
+
+					part_it.state=asked;
+				}
+				else if ( part_it.state == asked )
+				{ // piece has been already asked then i learn that
+					ask_sended=true;
+				}
+
+				break;
+			}
 		}
 	}
 }
