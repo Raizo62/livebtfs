@@ -160,30 +160,6 @@ void Read::fail(int piece) {
 	}
 }
 
-void Read::copy_async(InfosCopy * inf) {
-
-	int piece = inf->num_piece ;
-	char * buffer = inf->buffer ;
-
-	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
-		if( i->part.piece > piece ){
-			return;
-		}
-		if( i->part.piece == piece )
-		{
-			if( i->state != filled )
-				if ( (memcpy(i->buf, buffer + i->part.start, (size_t) i->part.length)) != NULL )
-				{
-					i->state = filled;
-					nbPieceNotFilled--;
-					if ( finished() )
-						isFinished();
-				}
-			return;
-		}
-	}
-}
-
 void Read::copy(int piece, char *buffer) {
 	for (parts_iter i = parts.begin(); i != parts.end(); ++i) {
 		if( i->part.piece > piece )
@@ -325,9 +301,10 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 		a->size);
 	#endif
 
-	std::vector<std::thread *> threads ;
+	std::vector<std::thread> threads;
 
-	InfosCopy info(a->piece,a->buffer.get());
+	int numPiece=a->piece;
+	char* buffer=a->buffer.get();
 
 	pthread_mutex_lock(&lock);
 
@@ -340,15 +317,12 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 	} else {
 
 		for (reads_iter i = reads.begin(); i != reads.end(); ++i) {
-			std::thread * th = new std::thread(&Read::copy_async,(*i),&info);
-			threads.push_back(th);
+			threads.emplace_back( &Read::copy,(*i),numPiece,buffer);
 		}
 	}
 
-	for (std::vector<std::thread *>::iterator i = threads.begin(); i != threads.end(); ++i){
-		if ((*i)->joinable())
-			(*i)->join();
-	}
+	for (std::vector<std::thread>::iterator i = threads.begin(); i != threads.end(); ++i)
+		i->join();
 
 	// must be after "join" because "btfs_reads" want also to read reads/parts :
 	pthread_mutex_unlock(&lock);
