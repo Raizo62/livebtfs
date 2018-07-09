@@ -99,10 +99,6 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 		this->size+=part.length;
 		nbPieceNotFilled++;
 
-		// bas : passer la priorite de la piece demandee de 0 a 7 (priorite la plus elevee)
-		handle.piece_priority(part.piece,7);
-		// bas
-		
 		parts.push_back(Part(part, buf));
 
 		size -= (size_t) part.length;
@@ -156,6 +152,9 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 			{
 				if ( ! ask_sended )
 				{
+					// wait that libtorrent has really this piece
+					while ( ! handle.have_piece(numPiece) );
+
 					handle.read_piece(numPiece);
 					ask_sended=true;
 				}
@@ -172,11 +171,15 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 	}
 }
 
-// logically, 1 piece must be empty when this this function is called
+// logically, 1 piece must be empty when this function is called
 void Read::verify_to_ask (int numPiece) {
 
 	if ( ! handle.have_piece(numPiece) )
+	{
+		// priority of numPiece changes from 0 to 7 (7 : top priority)
+		handle.piece_priority(numPiece,7);
 		return;
+	}
 
 	bool ask_sended = false;
 
@@ -345,9 +348,6 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 	#endif
 
 	bool ask_sended=false;
-
-	// wait that libtorrent has really this piece
-	while ( ! handle.have_piece(numPiece) );
 
 	pthread_mutex_lock(&lock);
 
