@@ -308,26 +308,31 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 	int numPiece=a->piece;
 	char* buffer=a->buffer.get();
 
-	pthread_mutex_lock(&lock);
-
 	if (a->ec) {
+
+		pthread_mutex_lock(&lock);
+
 		std::cout << a->message() << std::endl;
 
-		for(auto& i: reads) {
-			i->fail(a->piece);
-		}
+		for(auto& i: reads)
+			i->fail(numPiece);
+
+		pthread_mutex_unlock(&lock);
+
 	} else {
 
-		for(auto& i: reads) {
+		pthread_mutex_lock(&lock);
+
+		for(auto& i: reads)
 			threads.emplace_back( &Read::copy, i,numPiece,buffer);
-		}
+
+		for(auto& i: threads)
+			i.join();
+
+		// must be after "join" because "btfs_reads" want also to read reads/parts :
+		pthread_mutex_unlock(&lock);
+
 	}
-
-	for(auto& i: threads)
-		i.join();
-
-	// must be after "join" because "btfs_reads" want also to read reads/parts :
-	pthread_mutex_unlock(&lock);
 }
 
 static void
