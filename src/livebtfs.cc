@@ -614,6 +614,21 @@ btfs_statfs(const char *path, struct statvfs *stbuf) {
 	return 0;
 }
 
+static int
+btfs_chmod(const char *, mode_t) {
+    return 0;
+}
+
+static int
+btfs_chown(const char *, uid_t, gid_t) {
+    return 0;
+}
+
+static int
+btfs_utime(const char *, struct utimbuf *) {
+    return 0;
+}
+
 static void *
 btfs_init(struct fuse_conn_info *conn) {
 	pthread_mutex_lock(&lock);
@@ -1057,6 +1072,9 @@ main(int argc, char *argv[]) {
 	btfs_ops.getxattr = btfs_getxattr;
 	btfs_ops.init = btfs_init;
 	btfs_ops.destroy = btfs_destroy;
+	btfs_ops.chmod = btfs_chmod;
+	btfs_ops.chown = btfs_chown;
+	btfs_ops.utime = btfs_utime;
 
 	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
 
