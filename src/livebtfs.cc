@@ -855,41 +855,68 @@ btfs_getxattr(const char *path, const char *key, char *value, size_t len) {
 }
 
 static bool
-populate_target(std::string& target, char *arg) {
+populate_target(std::string& target, const char *name_file_torrent) {
 	std::string templ;
 
-	if (arg) {
-		templ += arg;
-	} else if (getenv("HOME")) {
+	// templ = /home/user/.livebtfs
+	if (getenv("HOME")) {
 		templ += getenv("HOME");
 		templ += "/." PACKAGE;
 	} else {
 		templ += "/tmp/" PACKAGE;
 	}
 
+	// create the dir /home/user/.livebtfs
 	if (mkdir(templ.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
 		if (errno != EEXIST)
-			RETV(perror("Failed to create target"), false);
+			RETV(perror("Failed to create target1"), false);
 	}
 
-	templ += "/" PACKAGE "-XXXXXX";
+	if( name_file_torrent )
+	{	// the name of the folder with all bytes is the name of torrent file
 
-	char *s = strdup(templ.c_str());
+		// templ = /home/user/.livebtfs/file.torrent
+		templ += "/" + std::string(basename(name_file_torrent));
 
-	if (s != NULL && mkdtemp(s) != NULL) {
-		char *x = realpath(s, NULL);
+		// create the dir /home/user/.livebtfs/file.torrent
+		const char* ctempl=templ.c_str();
+		if (mkdir(ctempl, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
+			if (errno != EEXIST)
+				RETV(perror("Failed to create target"), false);
+		}
 
-		if (x)
-			target = x;
-		else
-			perror("Failed to expand target");
+		char *crealpath = realpath(ctempl, NULL);
+		if ( ! crealpath )
+			RETV(perror("Failed to expand target"), false);
 
-		free(x);		
-	} else {
-		perror("Failed to generate target");
+		target = crealpath;
+		free(crealpath); // target is string, then target is a copy of crealpath
 	}
+	else
+	{	// the name of the folder with all bytes is randomize
 
-	free(s);
+		// templ = /home/user/.livebtfs/livebtfs-Pg5zMp
+		templ += "/" PACKAGE "-XXXXXX";
+
+		// duplicate templ in s
+		char* ctempl = strdup(templ.c_str());
+
+		// create the dir /home/user/.livebtfs/livebtfs-Pg5zMp
+		if (ctempl != NULL && mkdtemp(ctempl) != NULL) {
+
+			char *crealpath = realpath(ctempl, NULL);
+			if ( ! crealpath )
+				RETV(perror("Failed to expand target"), false);
+
+			target = crealpath;
+			free(crealpath); // target is string, then target is a copy of crealpath
+		}
+		else {
+			perror("Failed to generate target");
+		}
+
+		free(ctempl);
+	}
 
 	return target.length() > 0;
 }
@@ -1125,7 +1152,7 @@ main(int argc, char *argv[]) {
 
 	std::string target;
 
-	if (!populate_target(target, NULL))
+	if (!populate_target(target, params.keep ? params.metadata : NULL))
 		return -1;
 
 	libtorrent::add_torrent_params p;
@@ -1140,7 +1167,8 @@ main(int argc, char *argv[]) {
 	p.save_path = target + "/files";
 
 	if (mkdir(p.save_path.c_str(), 0777) < 0)
-		RETV(perror("Failed to create files directory"), -1);
+		if (errno != EEXIST)
+			RETV(perror("Failed to create files directory"), -1);
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
