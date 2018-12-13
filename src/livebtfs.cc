@@ -1164,11 +1164,7 @@ main(int argc, char *argv[]) {
 	p.flags &= ~libtorrent::torrent_flags::auto_managed;
 	p.flags &= ~libtorrent::torrent_flags::paused;
 #endif
-	p.save_path = target + "/files";
-
-	if (mkdir(p.save_path.c_str(), 0777) < 0)
-		if (errno != EEXIST)
-			RETV(perror("Failed to create files directory"), -1);
+	p.save_path = target;
 
 	curl_global_init(CURL_GLOBAL_ALL);
 
@@ -1182,9 +1178,6 @@ main(int argc, char *argv[]) {
 	if (!params.keep) {
 		if (rmdir(p.save_path.c_str()))
 			RETV(perror("Failed to remove files directory"), -1);
-
-		if (rmdir(target.c_str()))
-			RETV(perror("Failed to remove target directory"), -1);
 	}
 
 	return 0;
