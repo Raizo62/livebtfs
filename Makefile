@@ -34,20 +34,25 @@ EUID	:= $(shell id -u -r)
 
 ##############################
 
+.PHONY: all clean build install man
+
 % : $(SRC)/%.cc $(SRC)/%.h Makefile
 	$(CC) $(CFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -o $@ $<
 
-.PHONY: all clean build install
+build : $(EXEC) man
 
-build : $(EXEC)
+$(MAN)/$(NAME).1.gz : $(MAN)/$(NAME).1
+	gzip -c $(MAN)/$(NAME).1 > $(MAN)/$(NAME).1.gz
+
+man : $(MAN)/$(NAME).1.gz
 
 all : clean build install
 
 clean:
 	-rm -f *~ $(SRC)/*~ $(MAN)/*~
-	-rm -f $(EXEC)
+	-rm -f $(EXEC) $(MAN)/$(NAME).1.gz
 
-install : $(EXEC)
+install : $(EXEC) man
 ifneq ($(EUID),0)
 	@echo "Please run 'make install' as root user"
 	@exit 1
@@ -56,4 +61,4 @@ endif
 	# Install binaire :
 	mkdir -p $(BINDIR) && cp -p $(EXEC) $(BINDIR)
 	# Install mapage :
-	mkdir -p $(MANDIR) && gzip -c $(MAN)/$(NAME).1 > $(MANDIR)/$(NAME).1.gz
+	mkdir -p $(MANDIR) && cp $(MAN)/$(NAME).1.gz $(MANDIR)/$(NAME).1.gz
