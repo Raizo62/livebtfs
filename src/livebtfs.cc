@@ -855,16 +855,21 @@ btfs_getxattr(const char *path, const char *key, char *value, size_t len) {
 }
 
 static bool
-populate_target(std::string& target, const char *name_file_torrent) {
+populate_target(std::string& target, const char *data_directory, const char *name_file_torrent) {
 	std::string templ;
 
-	// templ = /home/user/.livebtfs
-	if (getenv("HOME")) {
-		templ += getenv("HOME");
-		templ += "/." PACKAGE;
-	} else {
-		templ += "/tmp/" PACKAGE;
-	}
+	if ( data_directory )
+		// templ = data_directory
+		templ=std::string(data_directory);
+	else
+		// templ = /home/user/.livebtfs
+		if (getenv("HOME")) {
+			templ = getenv("HOME");
+			templ += "/." PACKAGE;
+		} else {
+			// templ = /tmp/.livebtfs
+			templ = "/tmp/" PACKAGE;
+		}
 
 	// create the dir /home/user/.livebtfs
 	if (mkdir(templ.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
@@ -1034,6 +1039,7 @@ static const struct fuse_opt btfs_opts[] = {
 	BTFS_OPT("--browse-only",                browse_only,          1),
 	BTFS_OPT("-k",                           keep,                 1),
 	BTFS_OPT("--keep",                       keep,                 1),
+	BTFS_OPT("--data-directory=%s",          data_directory,       4),
 	BTFS_OPT("--min-port=%lu",               min_port,             4),
 	BTFS_OPT("--max-port=%lu",               max_port,             4),
 	BTFS_OPT("--max-download-rate=%lu",      max_download_rate,    4),
@@ -1074,6 +1080,7 @@ print_help() {
 	printf("    --help-fuse            print all fuse options\n");
 	printf("    --browse-only -b       download metadata only\n");
 	printf("    --keep -k              keep files after unmount\n");
+	printf("    --data-directory=dir   directory in which to put btfs data\n");
 	printf("    --min-port=N           start of listen port range\n");
 	printf("    --max-port=N           end of listen port range\n");
 	printf("    --max-download-rate=N  max download rate (in kB/s)\n");
@@ -1152,7 +1159,7 @@ main(int argc, char *argv[]) {
 
 	std::string target;
 
-	if (!populate_target(target, params.keep ? params.metadata : NULL))
+	if (!populate_target(target, params.data_directory, params.keep ? params.metadata : NULL))
 		return -1;
 
 	libtorrent::add_torrent_params p;

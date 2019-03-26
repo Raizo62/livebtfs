@@ -25,6 +25,9 @@ download metadata only
 \fB\-k\fR   \fB\-\-keep\fR
 keep files after unmount
 .TP
+\fB\-\-data-directory=\fIDIRECTORY\fR
+directory in which to put btfs download data. Default is $HOME/.livebtfs, or /tmp/.livebtfs if unavailable
+.TP
 \fB\-\-min-port=\fIPORT\fR
 start of listen port range
 .TP
@@ -52,7 +55,7 @@ disable Local Service Discovery
 \fB\-\-disable-all\fR
 same as : --disable-dht --disable-upnp --disable-natpmp --disable-lsd
 .TP
-if the option \fB\-\-keep\fR is used, the name of the temporary directory (in ~/.livebtfs/) is the basename of the torrent file, and this folder is not deleted when livebtfs is stopped.
+if the option \fB\-\-keep\fR is used, the name of the temporary directory (in --data-directory) is the basename of the torrent file, and this folder is not deleted when livebtfs is stopped.
 
 .SH EXAMPLES
 mounting a torrent file:

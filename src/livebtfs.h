@@ -112,6 +112,7 @@ struct btfs_params {
 	int help_fuse;
 	int browse_only;
 	int keep;
+	char *data_directory;
 	int min_port;
 	int max_port;
 	int max_download_rate;
