@@ -4,6 +4,8 @@
 
 With LIVEBTFS, you can mount any **.torrent** file or **magnet link** and then use it as any read-only directory in your file tree. The needed bytes of the files will be downloaded only when they are read by applications. Tools like **ls**, **cat** and **cp** works as expected. Applications like **vlc** and **mplayer** can also work without changes.
 
+It is based on btfs (https://github.com/johang/btfs)
+
 ## Example usage
 
     $ mkdir mnt
