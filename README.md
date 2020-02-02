@@ -21,7 +21,7 @@ To unmount and shutdown:
 
 * fuse : "fuse" in Debian / Ubuntu
 * libtorrent : "libtorrent-rasterbar9" in Debian / Ubuntu
-* libcurl : "libcurl3" in Debian / Ubuntu
+* libcurl : "libcurl4" in Debian / Ubuntu
 
 ## Building from git on a recent Debian/Ubuntu
 
