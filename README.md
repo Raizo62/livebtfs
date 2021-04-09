@@ -33,7 +33,7 @@ The iso file is "mnt/kali/kali-linux-2020-1b-live-amd64-iso/kali-linux-2020.1b-l
     $ vncviewer 'vnc:[::1]:5900'
 ```
 
-To unmount and shutdown:
+  * To unmount and shutdown:
 ```bash
     $ fusermount -u mnt/kali
 ```
