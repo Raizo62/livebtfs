@@ -439,11 +439,11 @@ handle_alert(libtorrent::alert *a) {
 }
 
 static void
-alert_queue_loop_destroy(void *data) {
+alert_queue_loop_destroy( [[maybe_unused]] void *data) {
 }
 
 static void*
-alert_queue_loop(void *data) {
+alert_queue_loop( [[maybe_unused]] void *data) {
 	int oldstate, oldtype;
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
@@ -526,7 +526,7 @@ btfs_getattr(const char *path, struct stat *stbuf) {
 
 static int
 btfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
-		off_t offset, struct fuse_file_info *fi) {
+		[[maybe_unused]] off_t offset, [[maybe_unused]] struct fuse_file_info *fi) {
 	if (!is_dir(path) && !is_file(path) && !is_root(path))
 		return -ENOENT;
 
@@ -562,7 +562,7 @@ btfs_open(const char *path, struct fuse_file_info *fi) {
 
 static int
 btfs_read(const char *path, char *buf, size_t size, off_t offset,
-		struct fuse_file_info *fi) {
+		[[maybe_unused]] struct fuse_file_info *fi) {
 	if (!is_dir(path) && !is_file(path))
 		return -ENOENT;
 
@@ -595,7 +595,7 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 }
 
 static int
-btfs_statfs(const char *path, struct statvfs *stbuf) {
+btfs_statfs( [[maybe_unused]] const char *path, struct statvfs *stbuf) {
 	libtorrent::torrent_status st = handle.status();
 
 	if (!st.has_metadata)
@@ -630,7 +630,7 @@ btfs_utime(const char *, struct utimbuf *) {
 }
 
 static void *
-btfs_init(struct fuse_conn_info *conn) {
+btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 	pthread_mutex_lock(&lock);
 
 	time_of_mount = time(NULL);
@@ -756,7 +756,7 @@ btfs_init(struct fuse_conn_info *conn) {
 }
 
 static void
-btfs_destroy(void *user_data) {
+btfs_destroy( [[maybe_unused]] void *user_data) {
 	pthread_mutex_lock(&lock);
 
 #if LIBTORRENT_VERSION_NUM < 10200
@@ -1054,7 +1054,7 @@ static const struct fuse_opt btfs_opts[] = {
 
 static int
 btfs_process_arg(void *data, const char *arg, int key,
-		struct fuse_args *outargs) {
+		[[maybe_unused]] struct fuse_args *outargs) {
 	// Number of NONOPT options so far
 	static int n = 0;
 
