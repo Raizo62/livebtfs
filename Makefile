@@ -12,7 +12,7 @@ MAN		=	man
 
 CC		=	g++
 
-MODE= -O4 -Wall -fomit-frame-pointer # //////////      RELEASE
+MODE= -O3 -s -pedantic -Wall # //////////      RELEASE
 #MODE= -g -Wall -D_DEBUG # //////////      DEBUG
 #MODE= -pg # //////////      PROFILER --> view with : gprof $(NAME)
 
