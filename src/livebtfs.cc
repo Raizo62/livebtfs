@@ -867,15 +867,22 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 	if ( data_directory )
 		// templ = data_directory
 		templ=std::string(data_directory);
-	else
-		// templ = /home/user/.livebtfs
-		if (getenv("HOME")) {
-			templ = getenv("HOME");
-			templ += "/." PACKAGE;
+	else {
+		// templ = /mydatas/livebtfs
+		if( getenv("XDG_DATA_HOME") ) {
+			templ += getenv("XDG_DATA_HOME");
+			templ += "/" PACKAGE;
 		} else {
-			// templ = /tmp/.livebtfs
-			templ = "/tmp/" PACKAGE;
+			// templ = /home/user/.livebtfs
+			if (getenv("HOME")) {
+				templ = getenv("HOME");
+				templ += "/." PACKAGE;
+			} else {
+				// templ = /tmp/.livebtfs
+				templ = "/tmp/" PACKAGE;
+			}
 		}
+	}
 
 	// create the dir /home/user/.livebtfs
 	if (mkdir(templ.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) < 0) {
