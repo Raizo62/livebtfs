@@ -596,6 +596,10 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 
 static int
 btfs_statfs( [[maybe_unused]] const char *path, struct statvfs *stbuf) {
+
+	if( ! handle.is_valid() )
+		return -ENOENT;
+
 	libtorrent::torrent_status st = handle.status();
 
 	if (!st.has_metadata)
