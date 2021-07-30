@@ -21,7 +21,7 @@ DEFS = -DPACKAGE=\"$(NAME)\" -DVERSION=\"$(VERSION)\"
 FUSE_CFLAGS = -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
 LIBTORRENT_CFLAGS = -DTORRENT_DISABLE_LOGGING -DTORRENT_USE_OPENSSL -DBOOST_ASIO_HASH_MAP_BUCKETS=1021 -DBOOST_EXCEPTION_DISABLE -DBOOST_ASIO_ENABLE_CANCELIO -DTORRENT_LINKING_SHARED -I/usr/include/libtorrent
 
-CFLAGS  +=  $(MODE) $(FUSE_CFLAGS) $(LIBTORRENT_CFLAGS)
+CFLAGS  +=  $(FUSE_CFLAGS) $(LIBTORRENT_CFLAGS)
 
 FUSE_LIBS = -lfuse -lpthread
 LIBTORRENT_LIBS = -ltorrent-rasterbar -lboost_system
@@ -33,10 +33,10 @@ EUID	:= $(shell id -u -r)
 
 ##############################
 
-.PHONY: all clean build install man
+.PHONY: all clean build install man cppcheck
 
 % : $(SRC)/%.cc $(SRC)/%.h Makefile
-	$(CC) $(CFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -o $@ $<
+	$(CC) $(MODE) $(CFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -o $@ $<
 
 build : $(EXEC) man
 
@@ -49,7 +49,10 @@ all : clean build install
 
 clean:
 	-rm -f *~ $(SRC)/*~ $(MAN)/*~
-	-rm -f $(EXEC) $(MAN)/$(NAME).1.gz
+	-rm -f $(EXEC) $(MAN)/$(NAME).1.gz $(NAME)-cppcheck.xml
+
+cppcheck:
+	cppcheck --verbose --enable=all --enable=style --xml $(CFLAGS) $(DEFS) -D_DEBUG $(SRC)/*.cc 2> $(NAME)-cppcheck.xml
 
 install : $(EXEC) man
 ifneq ($(EUID),0)
