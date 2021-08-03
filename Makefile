@@ -33,7 +33,7 @@ EUID	:= $(shell id -u -r)
 
 ##############################
 
-.PHONY: all clean build install man cppcheck
+.PHONY: all clean build install man cppcheck zip
 
 % : $(SRC)/%.cc $(SRC)/%.h Makefile
 	$(CC) $(MODE) $(CFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -o $@ $<
@@ -53,6 +53,9 @@ clean:
 
 cppcheck:
 	cppcheck --verbose --enable=all --enable=style --xml $(CFLAGS) $(DEFS) -D_DEBUG $(SRC)/*.cc 2> $(NAME)-cppcheck.xml
+
+zip:
+	tar czfvp $(NAME)_v$(VERSION).tgz [Mm]akefile $(SRC)/ $(MAN)/ scripts/ README.md LICENSE --transform="s+^+$(NAME)_v$(VERSION)/+"
 
 install : $(EXEC) man
 ifneq ($(EUID),0)
