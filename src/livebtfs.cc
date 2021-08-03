@@ -957,11 +957,16 @@ handle_http(void *contents, size_t size, size_t nmemb, void *userp) {
 	return nmemb * size;
 }
 
+bool starts_with(const std::string& str, const std::string& subStr)
+{
+	return (str.compare(0, subStr.length(), subStr) == 0);
+}
+
 static bool
 populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 	std::string uri(arg);
 
-	if (uri.find("http:") == 0 || uri.find("https:") == 0) {
+	if ( starts_with(uri,"http:") || starts_with(uri,"https:") ) {
 		Array output;
 
 		CURL *ch = curl_easy_init();
@@ -1002,7 +1007,7 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 #else
 			p.flags |= libtorrent::torrent_flags::paused;
 #endif
-	} else if (uri.find("magnet:") == 0) {
+	} else if( starts_with(uri,"magnet:") ) {
 		libtorrent::error_code ec;
 
 		parse_magnet_uri(uri, p, ec);
