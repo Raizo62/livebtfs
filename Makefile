@@ -16,6 +16,8 @@ MODE= -O3 -s -Wextra -pedantic -Wall # //////////      RELEASE
 #MODE= -g -Wall -D_DEBUG # //////////      DEBUG
 #MODE= -pg # //////////      PROFILER --> view with : gprof $(NAME)
 
+EDITOR	=	geany
+
 DEFS = -DPACKAGE=\"$(NAME)\" -DVERSION=\"$(VERSION)\"
 
 FUSE_CFLAGS = -D_FILE_OFFSET_BITS=64 -I/usr/include/fuse
@@ -33,7 +35,7 @@ EUID	:= $(shell id -u -r)
 
 ##############################
 
-.PHONY: all clean build install man cppcheck zip
+.PHONY: all clean build install man edit cppcheck zip
 
 % : $(SRC)/%.cc $(SRC)/%.h Makefile
 	$(CC) $(MODE) $(CFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -o $@ $<
@@ -50,6 +52,9 @@ all : clean build install
 clean:
 	-rm -f *~ $(SRC)/*~ $(MAN)/*~
 	-rm -f $(EXEC) $(MAN)/$(NAME).1.gz $(NAME)-cppcheck.xml
+
+edit:
+	$(EDITOR) $(SRC)/* [Mm]akefile README.md &
 
 cppcheck:
 	cppcheck --verbose --enable=all --enable=style --xml $(CFLAGS) $(DEFS) -D_DEBUG $(SRC)/*.cc 2> $(NAME)-cppcheck.xml
