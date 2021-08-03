@@ -98,7 +98,13 @@ public:
 	}
 
 	bool expand(size_t n) {
-		return (buf = (char *) realloc((void *) buf, size += n)) != NULL;
+		char* new_buf = (char *) realloc((void *) buf, size += n);
+		if( new_buf != NULL )
+		{
+			buf = new_buf;
+			return true;
+		}
+		return false;
 	}
 
 	char *buf;

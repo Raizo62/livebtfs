@@ -948,7 +948,8 @@ handle_http(void *contents, size_t size, size_t nmemb, void *userp) {
 	// Offset into buffer to write to
 	size_t off = output->size;
 
-	output->expand(nmemb * size);
+	if( ! output->expand(nmemb * size) )
+		return 0;
 
 	memcpy(output->buf + off, contents, nmemb * size);
 
