@@ -107,13 +107,13 @@ main(int argc, char *argv[]) {
 			return 3;
 		}
 
-		char *dir = strdup(root);
-		char *base = strdup(root);
+		//char *dir = strdup(root);
+		//char *base = strdup(root);
 
 		scan("", dirname(root), basename(root));
 
-		free(base);
-		free(dir);
+		//free(base);
+		//free(dir);
 
 		free(root);
 	}
