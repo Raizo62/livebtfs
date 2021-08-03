@@ -52,7 +52,7 @@ list(std::string path) {
 }
 
 static void
-scan(std::string indent, std::string d, std::string f) {
+scan(std::string indent, const std::string& d, std::string f) {
 	struct stat s;
 	memset(&s, 0, sizeof (s));
 
