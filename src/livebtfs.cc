@@ -277,10 +277,10 @@ setup() {
 			continue;
 
 		for (char *x = strtok(p, "/"); x; x = strtok(NULL, "/")) {
-			if (strlen(x) <= 0)
+			if (strlen(x) == 0)
 				continue;
 
-			if (parent.length() <= 0)
+			if (parent.length() == 0)
 				// Root dir <-> children mapping
 				dirs["/"].insert(x);
 			else
