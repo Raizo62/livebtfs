@@ -683,11 +683,13 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 			i < params.min_port + 5; i++)
 		interfaces << ",0.0.0.0:" << i;
 
+/*
 	std::string fingerprint =
 		"LT"
 		STRINGIFY(LIBTORRENT_VERSION_MAJOR)
 		STRINGIFY(LIBTORRENT_VERSION_MINOR)
 		"00";
+*/
 
 	if ( params.disable_all )
 	{
