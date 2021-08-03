@@ -1078,14 +1078,14 @@ static int
 btfs_process_arg(void *data, const char *arg, int key,
 		[[maybe_unused]] struct fuse_args *outargs) {
 
-	struct btfs_params *params = (struct btfs_params *) data;
+	struct btfs_params* pparams = (struct btfs_params *) data;
 
 	if (key == FUSE_OPT_KEY_NONOPT) {
 		// Number of NONOPT options so far
 		static int n = 0;
 
 		if (n++ == 0)
-			params->metadata = arg;
+			pparams->metadata = arg;
 
 		return n <= 1 ? 0 : 1;
 	}
