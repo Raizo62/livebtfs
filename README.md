@@ -1,4 +1,4 @@
-# LIVEBTFS (bittorrent for live filesystem)
+# LIVEBTFS (bittorrent to access to remote OS)
 
 ## What is this?
 
