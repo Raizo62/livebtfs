@@ -38,7 +38,7 @@ EUID	:= $(shell id -u -r)
 .PHONY: all clean build install man edit cppcheck zip
 
 % : $(SRC)/%.cc $(SRC)/%.h Makefile
-	$(CC) $(MODE) $(CFLAGS) $(DEFS) $(LDFLAGS) $(LIBS) -o $@ $<
+	$(CC) $(MODE) $(CFLAGS) $(DEFS) -o $@ $< $(LDFLAGS) $(LIBS)
 
 build : $(EXEC) man
 
