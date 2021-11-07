@@ -41,7 +41,7 @@ The iso file is "mnt/kali/kali-linux-2020-1b-live-amd64-iso/kali-linux-2020.1b-l
 ## Dependencies (on Linux)
 
 * fuse : "fuse" in Debian / Ubuntu
-* libtorrent : "libtorrent-rasterbar9" in Debian / Ubuntu
+* libtorrent : "libtorrent-rasterbar10" in Debian / Ubuntu
 * libcurl : "libcurl4" in Debian / Ubuntu
 
 ## Building from git on a recent Debian/Ubuntu
