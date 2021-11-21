@@ -658,7 +658,11 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 		libtorrent::alert::tracker_notification |
 		libtorrent::alert::stats_notification |
 		libtorrent::alert::storage_notification |
-		libtorrent::alert::progress_notification |
+		libtorrent::alert::connect_notification |
+		libtorrent::alert::ip_block_notification |
+		libtorrent::alert::incoming_request_notification |
+		libtorrent::alert::peer_log_notification |
+		libtorrent::alert::torrent_log_notification |
 		libtorrent::alert::status_notification |
 		libtorrent::alert::error_notification |
 		libtorrent::alert::dht_notification |
