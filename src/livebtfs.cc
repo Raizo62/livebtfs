@@ -647,8 +647,7 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 #else
 	libtorrent::session_flags_t flags =
 #endif
-		libtorrent::session::add_default_plugins |
-		libtorrent::session::start_default_features;
+		libtorrent::session::add_default_plugins ;
 
 #if LIBTORRENT_VERSION_NUM < 10200
 	int alerts =
