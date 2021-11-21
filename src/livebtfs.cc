@@ -666,8 +666,8 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 		libtorrent::alert::peer_notification;
 #else
 		libtorrent::alert::storage_notification | // read_piece_alert
-		libtorrent::alert::progress_notification | // piece_finished_alert
-		libtorrent::alert::status_notification | // metadata_received_alert , torrent_added_alert , torrent_removed_alert
+		libtorrent::alert::piece_progress_notification | // piece_finished_alert
+		libtorrent::alert::status_notification | // metadata_received_alert , add_torrent_alert , torrent_removed_alert
 		libtorrent::alert::error_notification;
 #endif
 
