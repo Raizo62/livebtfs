@@ -311,7 +311,7 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 	int numPiece=a->piece;
 	char* buffer=a->buffer.get();
 
-	if (a->ec) {
+	if (a->error) {
 
 		pthread_mutex_lock(&lock);
 
