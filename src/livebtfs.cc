@@ -257,7 +257,7 @@ setup() {
 	//i.e. pas de telechargement
 	std::vector<int>::size_type  numpieces =  (std::vector<int>::size_type) ti->num_pieces();
 	//std::vector<int> prios(numpieces); // default value is already : 0
-	std::vector<int> prios(numpieces,0); // default value : 0
+	std::vector<libtorrent::download_priority_t> prios(numpieces,0); // default value : 0
 /*
 	for (std::vector<int>::size_type i = 0 ; i < numpieces ; i++)
 		prios[i]= 0 ;
