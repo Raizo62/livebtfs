@@ -358,7 +358,7 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 }
 
 static void
-handle_torrent_added_alert(libtorrent::torrent_added_alert *a) {
+handle_torrent_added_alert(libtorrent::add_torrent_alert *a) {
 	pthread_mutex_lock(&lock);
 
 	handle = a->handle;
@@ -405,10 +405,10 @@ handle_alert(libtorrent::alert *a) {
 		handle_metadata_received_alert(
 			(libtorrent::metadata_received_alert *) a);
 		break;
-	case libtorrent::torrent_added_alert::alert_type:
+	case libtorrent::add_torrent_alert::alert_type:
 		//std::cout << a->message() << std::endl;
 		handle_torrent_added_alert(
-			(libtorrent::torrent_added_alert *) a);
+			(libtorrent::add_torrent_alert *) a);
 		break;
 	case libtorrent::dht_bootstrap_alert::alert_type:
 		//std::cout << a->message() << std::endl;
