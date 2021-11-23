@@ -44,9 +44,8 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <libtorrent/alert_types.hpp>
 #include <libtorrent/magnet_uri.hpp>
 #include <libtorrent/version.hpp>
-#if LIBTORRENT_VERSION_NUM >= 10200
 #include <libtorrent/torrent_flags.hpp>
-#endif
+
 #pragma GCC diagnostic pop
 
 #include <curl/curl.h>
@@ -504,11 +503,7 @@ btfs_getattr(const char *path, struct stat *stbuf) {
 
 		int64_t file_size = ti->files().file_size(files[path]);
 
-#if LIBTORRENT_VERSION_NUM < 10200
-		std::vector<boost::int64_t> progress;
-#else
 		std::vector<std::int64_t> progress;
-#endif
 
 		// Get number of bytes downloaded of each file
 		handle.file_progress(progress,
@@ -642,18 +637,10 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 	libtorrent::add_torrent_params *p = (libtorrent::add_torrent_params *)
 		fuse_get_context()->private_data;
 
-#if LIBTORRENT_VERSION_NUM < 10200
-	int flags =
-#else
 	libtorrent::session_flags_t flags =
-#endif
 		libtorrent::session::add_default_plugins ;
 
-#if LIBTORRENT_VERSION_NUM < 10200
-	int alerts =
-#else
 	libtorrent::alert_category_t alerts =
-#endif
 #ifdef _DEBUG
 		libtorrent::alert::tracker_notification |
 		libtorrent::alert::stats_notification |
@@ -770,11 +757,7 @@ static void
 btfs_destroy( [[maybe_unused]] void *user_data) {
 	pthread_mutex_lock(&lock);
 
-#if LIBTORRENT_VERSION_NUM < 10200
-	int flags = 0;
-#else
 	libtorrent::remove_flags_t flags = {};
-#endif
 
 	if (!params.keep)
 		flags |= libtorrent::session::delete_files;
@@ -990,26 +973,16 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 
 		libtorrent::error_code ec;
 
-#if LIBTORRENT_VERSION_NUM < 10200
-		p.ti = boost::make_shared<libtorrent::torrent_info>(
-			(const char *) output.buf, (int) output.size,
-			boost::ref(ec));
-#else
 		p.ti = std::make_shared<libtorrent::torrent_info>(
 			(const char *) output.buf, (int) output.size,
 			std::ref(ec));
-#endif
 
 		if (ec)
 			RETV(fprintf(stderr, "Parse metadata failed: %s\n",
 				ec.message().c_str()), false);
 
 		if (params.browse_only)
-#if LIBTORRENT_VERSION_NUM < 10200
-			p.flags |= libtorrent::add_torrent_params::flag_paused;
-#else
 			p.flags |= libtorrent::torrent_flags::paused;
-#endif
 	} else if( starts_with(uri,"magnet:") ) {
 		libtorrent::error_code ec;
 
@@ -1026,13 +999,8 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 
 		libtorrent::error_code ec;
 
-#if LIBTORRENT_VERSION_NUM < 10200
-		p.ti = boost::make_shared<libtorrent::torrent_info>(r,
-			boost::ref(ec));
-#else
 		p.ti = std::make_shared<libtorrent::torrent_info>(r,
 			std::ref(ec));
-#endif
 
 		free(r);
 
@@ -1041,11 +1009,7 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 				ec.message().c_str()), false);
 
 		if (params.browse_only)
-#if LIBTORRENT_VERSION_NUM < 10200
-			p.flags |= libtorrent::add_torrent_params::flag_paused;
-#else
 			p.flags |= libtorrent::torrent_flags::paused;
-#endif
 	}
 
 	return true;
@@ -1191,13 +1155,8 @@ main(int argc, char *argv[]) {
 
 	libtorrent::add_torrent_params p;
 
-#if LIBTORRENT_VERSION_NUM < 10200
-	p.flags &= ~libtorrent::add_torrent_params::flag_auto_managed;
-	p.flags &= ~libtorrent::add_torrent_params::flag_paused;
-#else
 	p.flags &= ~libtorrent::torrent_flags::auto_managed;
 	p.flags &= ~libtorrent::torrent_flags::paused;
-#endif
 	p.save_path = target;
 
 	curl_global_init(CURL_GLOBAL_ALL);
