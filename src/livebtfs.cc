@@ -667,12 +667,11 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 	std::ostringstream interfaces;
 
 	// First port
-	interfaces << "0.0.0.0:" << params.min_port;
+	interfaces << "0.0.0.0:" << params.min_port << ",[::]:" << params.min_port;
 
 	// Possibly more ports, but at most 5
-	for (int i = params.min_port + 1; i <= params.max_port &&
-			i < params.min_port + 5; i++)
-		interfaces << ",0.0.0.0:" << i;
+	for (int i = params.min_port + 1; i <= params.max_port && i < params.min_port + 5; i++)
+		interfaces << ",0.0.0.0:" << i << ",[::]:" << i;
 
 /*
 	std::string fingerprint =
