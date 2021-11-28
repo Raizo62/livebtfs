@@ -45,12 +45,12 @@ class Part
 	friend class Read;
 
 public:
-	Part(libtorrent::peer_request p, char *b) : part(p), buf(b)
+	Part(lt::peer_request p, char *b) : part(p), buf(b)
 	{
 	}
 
 private:
-	libtorrent::peer_request part;
+	lt::peer_request part;
 
 	char *buf;
 

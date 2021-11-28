@@ -57,9 +57,9 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace btfs;
 
-libtorrent::session *session = NULL;
+lt::session *session = NULL;
 
-libtorrent::torrent_handle handle;
+lt::torrent_handle handle;
 
 pthread_t alert_thread;
 
@@ -88,7 +88,7 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 	int64_t file_size = ti->files().file_size(index);
 
 	while (size > 0 && offset < file_size) {
-		libtorrent::peer_request part = ti->map_file(index, offset,
+		lt::peer_request part = ti->map_file(index, offset,
 			(int) size);
 
 		part.length = std::min(
@@ -256,7 +256,7 @@ setup() {
 	//i.e. pas de telechargement
 	std::vector<int>::size_type  numpieces =  (std::vector<int>::size_type) ti->num_pieces();
 	//std::vector<int> prios(numpieces); // default value is already : 0
-	std::vector<libtorrent::download_priority_t> prios(numpieces,0); // default value : 0
+	std::vector<lt::download_priority_t> prios(numpieces,0); // default value : 0
 /*
 	for (std::vector<int>::size_type i = 0 ; i < numpieces ; i++)
 		prios[i]= 0 ;
@@ -298,7 +298,7 @@ setup() {
 }
 
 static void
-handle_read_piece_alert(libtorrent::read_piece_alert *a) {
+handle_read_piece_alert(lt::read_piece_alert *a) {
 
 	#ifdef _DEBUG
 	printf("%s: piece %d size %d\n", __func__, static_cast<int>(a->piece),
@@ -338,7 +338,7 @@ handle_read_piece_alert(libtorrent::read_piece_alert *a) {
 }
 
 static void
-handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
+handle_piece_finished_alert(lt::piece_finished_alert *a) {
 
 	int numPiece=static_cast<int>(a->piece_index);
 
@@ -357,7 +357,7 @@ handle_piece_finished_alert(libtorrent::piece_finished_alert *a) {
 }
 
 static void
-handle_torrent_added_alert(libtorrent::add_torrent_alert *a) {
+handle_torrent_added_alert(lt::add_torrent_alert *a) {
 	pthread_mutex_lock(&lock);
 
 	handle = a->handle;
@@ -369,7 +369,7 @@ handle_torrent_added_alert(libtorrent::add_torrent_alert *a) {
 }
 
 static void
-handle_metadata_received_alert(libtorrent::metadata_received_alert *a) {
+handle_metadata_received_alert(lt::metadata_received_alert *a) {
 	pthread_mutex_lock(&lock);
 
 	handle = a->handle;
@@ -385,42 +385,42 @@ handle_torrent_removed_alert() {
 }
 
 static void
-handle_alert(libtorrent::alert *a) {
+handle_alert(lt::alert *a) {
 
 #ifdef _DEBUG
 	std::cout << "->" << a->message() << std::endl;
 #endif
 
 	switch (a->type()) {
-	case libtorrent::read_piece_alert::alert_type:
+	case lt::read_piece_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[read_piece_alert:" <<a->message() << std::endl;
 #endif
 		handle_read_piece_alert(
-			(libtorrent::read_piece_alert *) a);
+			(lt::read_piece_alert *) a);
 		break;
-	case libtorrent::piece_finished_alert::alert_type:
+	case lt::piece_finished_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[piece_finished_alert:" <<a->message() << std::endl;
 #endif
 		handle_piece_finished_alert(
-			(libtorrent::piece_finished_alert *) a);
+			(lt::piece_finished_alert *) a);
 		break;
-	case libtorrent::metadata_received_alert::alert_type:
+	case lt::metadata_received_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[metadata_received_alert:" <<a->message() << std::endl;
 #endif
 		handle_metadata_received_alert(
-			(libtorrent::metadata_received_alert *) a);
+			(lt::metadata_received_alert *) a);
 		break;
-	case libtorrent::add_torrent_alert::alert_type:
+	case lt::add_torrent_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[add_torrent_alert:" <<a->message() << std::endl;
 #endif
 		handle_torrent_added_alert(
-			(libtorrent::add_torrent_alert *) a);
+			(lt::add_torrent_alert *) a);
 		break;
-	case libtorrent::dht_bootstrap_alert::alert_type:
+	case lt::dht_bootstrap_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[dht_bootstrap_alert:" <<a->message() << std::endl;
 #endif
@@ -428,21 +428,21 @@ handle_alert(libtorrent::alert *a) {
 		handle.force_dht_announce();
 		break;
 #ifdef _DEBUG
-	case libtorrent::dht_announce_alert::alert_type:
-	case libtorrent::dht_reply_alert::alert_type:
-	case libtorrent::metadata_failed_alert::alert_type:
-	case libtorrent::tracker_announce_alert::alert_type:
-	case libtorrent::tracker_reply_alert::alert_type:
-	case libtorrent::tracker_warning_alert::alert_type:
-	case libtorrent::tracker_error_alert::alert_type:
-	case libtorrent::lsd_peer_alert::alert_type:
+	case lt::dht_announce_alert::alert_type:
+	case lt::dht_reply_alert::alert_type:
+	case lt::metadata_failed_alert::alert_type:
+	case lt::tracker_announce_alert::alert_type:
+	case lt::tracker_reply_alert::alert_type:
+	case lt::tracker_warning_alert::alert_type:
+	case lt::tracker_error_alert::alert_type:
+	case lt::lsd_peer_alert::alert_type:
 		std::cout << "[(several):" <<a->message() << std::endl;
 		break;
-	case libtorrent::stats_alert::alert_type:
+	case lt::stats_alert::alert_type:
 		std::cout << "[stats_alert:" <<a->message() << std::endl;
 		break;
 #endif
-	case libtorrent::torrent_removed_alert::alert_type:
+	case lt::torrent_removed_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[torrent_removed_alert:" <<a->message() << std::endl;
 #endif
@@ -466,11 +466,11 @@ alert_queue_loop( [[maybe_unused]] void *data) {
 
 	pthread_cleanup_push(&alert_queue_loop_destroy, NULL);
 
-	std::vector<libtorrent::alert*> alerts;
+	std::vector<lt::alert*> alerts;
 
 	while (1) {
 		// wait_for_alert is unlock as soon as new alert
-		if (!session->wait_for_alert(libtorrent::seconds(3600)))
+		if (!session->wait_for_alert(lt::seconds(3600)))
 			continue;
 
 		session->pop_alerts(&alerts);
@@ -523,7 +523,7 @@ btfs_getattr(const char *path, struct stat *stbuf) {
 
 		// Get number of bytes downloaded of each file
 		handle.file_progress(progress,
-			libtorrent::torrent_handle::piece_granularity);
+			lt::torrent_handle::piece_granularity);
 
 		stbuf->st_blocks = progress[(size_t) files[path]] / 512;
 		stbuf->st_mode = S_IFREG | 0444;
@@ -611,7 +611,7 @@ btfs_statfs( [[maybe_unused]] const char *path, struct statvfs *stbuf) {
 	if( ! handle.is_valid() )
 		return -ENOENT;
 
-	libtorrent::torrent_status st = handle.status();
+	lt::torrent_status st = handle.status();
 
 	if (!st.has_metadata)
 		return -ENOENT;
@@ -650,35 +650,35 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 
 	time_of_mount = time(NULL);
 
-	libtorrent::add_torrent_params *p = (libtorrent::add_torrent_params *)
+	lt::add_torrent_params *p = (lt::add_torrent_params *)
 		fuse_get_context()->private_data;
 
-	libtorrent::session_flags_t flags =
-		libtorrent::session::add_default_plugins ;
+	lt::session_flags_t flags =
+		lt::session::add_default_plugins ;
 
-	libtorrent::alert_category_t alerts =
+	lt::alert_category_t alerts =
 #ifdef _DEBUG
-		libtorrent::alert::tracker_notification |
-		libtorrent::alert::stats_notification |
-		libtorrent::alert::connect_notification |
-		libtorrent::alert::ip_block_notification |
-		libtorrent::alert::incoming_request_notification |
-		libtorrent::alert::peer_log_notification |
-		libtorrent::alert::torrent_log_notification |
-		libtorrent::alert::dht_notification |
-		libtorrent::alert::peer_notification |
-		libtorrent::alert::storage_notification | // read_piece_alert
-		libtorrent::alert::piece_progress_notification | // piece_finished_alert
-		libtorrent::alert::status_notification | // metadata_received_alert , add_torrent_alert , torrent_removed_alert
-		libtorrent::alert::error_notification;
+		lt::alert::tracker_notification |
+		lt::alert::stats_notification |
+		lt::alert::connect_notification |
+		lt::alert::ip_block_notification |
+		lt::alert::incoming_request_notification |
+		lt::alert::peer_log_notification |
+		lt::alert::torrent_log_notification |
+		lt::alert::dht_notification |
+		lt::alert::peer_notification |
+		lt::alert::storage_notification | // read_piece_alert
+		lt::alert::piece_progress_notification | // piece_finished_alert
+		lt::alert::status_notification | // metadata_received_alert , add_torrent_alert , torrent_removed_alert
+		lt::alert::error_notification;
 #else
-		libtorrent::alert::storage_notification | // read_piece_alert
-		libtorrent::alert::piece_progress_notification | // piece_finished_alert
-		libtorrent::alert::status_notification | // metadata_received_alert , add_torrent_alert , torrent_removed_alert
-		libtorrent::alert::error_notification;
+		lt::alert::storage_notification | // read_piece_alert
+		lt::alert::piece_progress_notification | // piece_finished_alert
+		lt::alert::status_notification | // metadata_received_alert , add_torrent_alert , torrent_removed_alert
+		lt::alert::error_notification;
 #endif
 
-	libtorrent::settings_pack pack;
+	lt::settings_pack pack;
 
 	std::ostringstream interfaces;
 
@@ -708,53 +708,53 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 	if ( params.disable_dht )
 	{
 		// disable DHT
-		pack.set_str(libtorrent::settings_pack::dht_bootstrap_nodes, "");
-		pack.set_bool(libtorrent::settings_pack::enable_dht, false);
+		pack.set_str(lt::settings_pack::dht_bootstrap_nodes, "");
+		pack.set_bool(lt::settings_pack::enable_dht, false);
 	}
 	else
 	{
 		// enable DHT
-		pack.set_str(libtorrent::settings_pack::dht_bootstrap_nodes,
+		pack.set_str(lt::settings_pack::dht_bootstrap_nodes,
 			"router.bittorrent.com:6881,"
 			"router.utorrent.com:6881,"
 			"dht.transmissionbt.com:6881");
 	}
 
 	if ( params.disable_upnp )
-		pack.set_bool(libtorrent::settings_pack::enable_upnp, false);
+		pack.set_bool(lt::settings_pack::enable_upnp, false);
 
 	if ( params.disable_natpmp )
-		pack.set_bool(libtorrent::settings_pack::enable_natpmp, false);
+		pack.set_bool(lt::settings_pack::enable_natpmp, false);
 
 	if ( params.disable_lsd )
-		pack.set_bool(libtorrent::settings_pack::enable_lsd, false);
+		pack.set_bool(lt::settings_pack::enable_lsd, false);
 
-	pack.set_int(libtorrent::settings_pack::request_timeout, 60);
-	pack.set_int(libtorrent::settings_pack::peer_timeout, 60);
+	pack.set_int(lt::settings_pack::request_timeout, 60);
+	pack.set_int(lt::settings_pack::peer_timeout, 60);
 
-	pack.set_str(libtorrent::settings_pack::listen_interfaces, interfaces.str());
-	pack.set_bool(libtorrent::settings_pack::strict_end_game_mode, false);
-	pack.set_bool(libtorrent::settings_pack::announce_to_all_trackers, true);
-	pack.set_bool(libtorrent::settings_pack::announce_to_all_tiers, true);
-	pack.set_bool(libtorrent::settings_pack::enable_incoming_tcp, !params.utp_only);
-	pack.set_bool(libtorrent::settings_pack::enable_outgoing_tcp, !params.utp_only);
-	pack.set_int(libtorrent::settings_pack::download_rate_limit, params.max_download_rate * 1024);
-	pack.set_int(libtorrent::settings_pack::upload_rate_limit, params.max_upload_rate * 1024);
-	pack.set_int(libtorrent::settings_pack::alert_mask, alerts);
+	pack.set_str(lt::settings_pack::listen_interfaces, interfaces.str());
+	pack.set_bool(lt::settings_pack::strict_end_game_mode, false);
+	pack.set_bool(lt::settings_pack::announce_to_all_trackers, true);
+	pack.set_bool(lt::settings_pack::announce_to_all_tiers, true);
+	pack.set_bool(lt::settings_pack::enable_incoming_tcp, !params.utp_only);
+	pack.set_bool(lt::settings_pack::enable_outgoing_tcp, !params.utp_only);
+	pack.set_int(lt::settings_pack::download_rate_limit, params.max_download_rate * 1024);
+	pack.set_int(lt::settings_pack::upload_rate_limit, params.max_upload_rate * 1024);
+	pack.set_int(lt::settings_pack::alert_mask, alerts);
 
-	//pack.set_int(libtorrent::settings_pack::seed_choking_algorithm, libtorrent::settings_pack::fastest_upload);
-	pack.set_int(libtorrent::settings_pack::seed_choking_algorithm, libtorrent::settings_pack::fixed_slots_choker);
-	pack.set_int(libtorrent::settings_pack::unchoke_slots_limit, 30);
-	//pack.set_int(libtorrent::settings_pack::unchoke_slots_limit, -1);
+	//pack.set_int(lt::settings_pack::seed_choking_algorithm, lt::settings_pack::fastest_upload);
+	pack.set_int(lt::settings_pack::seed_choking_algorithm, lt::settings_pack::fixed_slots_choker);
+	pack.set_int(lt::settings_pack::unchoke_slots_limit, 30);
+	//pack.set_int(lt::settings_pack::unchoke_slots_limit, -1);
 
-	pack.set_bool(libtorrent::settings_pack::prioritize_partial_pieces, true);
-	pack.set_bool(libtorrent::settings_pack::close_redundant_connections, false);
-	pack.set_bool(libtorrent::settings_pack::allow_multiple_connections_per_ip, true);
+	pack.set_bool(lt::settings_pack::prioritize_partial_pieces, true);
+	pack.set_bool(lt::settings_pack::close_redundant_connections, false);
+	pack.set_bool(lt::settings_pack::allow_multiple_connections_per_ip, true);
 
 	// read a piece the next time is faster :
-	pack.set_int(libtorrent::settings_pack::tick_interval,30);
+	pack.set_int(lt::settings_pack::tick_interval,30);
 
-	session = new libtorrent::session(pack, flags);
+	session = new lt::session(pack, flags);
 
 	session->add_torrent(*p);
 
@@ -773,10 +773,10 @@ static void
 btfs_destroy( [[maybe_unused]] void *user_data) {
 	pthread_mutex_lock(&lock);
 
-	libtorrent::remove_flags_t flags = {};
+	lt::remove_flags_t flags = {};
 
 	if (!params.keep)
-		flags |= libtorrent::session::delete_files;
+		flags |= lt::session::delete_files;
 
 	session->remove_torrent(handle, flags);
 
@@ -965,7 +965,7 @@ bool starts_with(const std::string& str, const std::string& subStr)
 }
 
 static bool
-populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
+populate_metadata(lt::add_torrent_params& p, const char *arg) {
 	std::string uri(arg);
 
 	if ( starts_with(uri,"http:") || starts_with(uri,"https:") ) {
@@ -987,9 +987,9 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 
 		curl_easy_cleanup(ch);
 
-		libtorrent::error_code ec;
+		lt::error_code ec;
 
-		p.ti = std::make_shared<libtorrent::torrent_info>(
+		p.ti = std::make_shared<lt::torrent_info>(
 			(const char *) output.buf, (int) output.size,
 			std::ref(ec));
 
@@ -998,9 +998,9 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 				ec.message().c_str()), false);
 
 		if (params.browse_only)
-			p.flags |= libtorrent::torrent_flags::paused;
+			p.flags |= lt::torrent_flags::paused;
 	} else if( starts_with(uri,"magnet:") ) {
-		libtorrent::error_code ec;
+		lt::error_code ec;
 
 		parse_magnet_uri(uri, p, ec);
 
@@ -1013,9 +1013,9 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 		if (!r)
 			RETV(perror("Find metadata failed"), false);
 
-		libtorrent::error_code ec;
+		lt::error_code ec;
 
-		p.ti = std::make_shared<libtorrent::torrent_info>(r,
+		p.ti = std::make_shared<lt::torrent_info>(r,
 			std::ref(ec));
 
 		free(r);
@@ -1025,7 +1025,7 @@ populate_metadata(libtorrent::add_torrent_params& p, const char *arg) {
 				ec.message().c_str()), false);
 
 		if (params.browse_only)
-			p.flags |= libtorrent::torrent_flags::paused;
+			p.flags |= lt::torrent_flags::paused;
 	}
 
 	return true;
@@ -1169,10 +1169,10 @@ main(int argc, char *argv[]) {
 	if (!populate_target(target, params.data_directory, params.keep ? params.metadata : NULL))
 		return -1;
 
-	libtorrent::add_torrent_params p;
+	lt::add_torrent_params p;
 
-	p.flags &= ~libtorrent::torrent_flags::auto_managed;
-	p.flags &= ~libtorrent::torrent_flags::paused;
+	p.flags &= ~lt::torrent_flags::auto_managed;
+	p.flags &= ~lt::torrent_flags::paused;
 	p.save_path = target;
 
 	curl_global_init(CURL_GLOBAL_ALL);
