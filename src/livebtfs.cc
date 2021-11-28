@@ -387,30 +387,43 @@ handle_torrent_removed_alert() {
 static void
 handle_alert(libtorrent::alert *a) {
 
-	//std::cout << a->message() << std::endl;
+#ifdef _DEBUG
+	std::cout << "->" << a->message() << std::endl;
+#endif
 
 	switch (a->type()) {
 	case libtorrent::read_piece_alert::alert_type:
+#ifdef _DEBUG
+		std::cout << "[read_piece_alert:" <<a->message() << std::endl;
+#endif
 		handle_read_piece_alert(
 			(libtorrent::read_piece_alert *) a);
 		break;
 	case libtorrent::piece_finished_alert::alert_type:
-		//std::cout << a->message() << std::endl;
+#ifdef _DEBUG
+		std::cout << "[piece_finished_alert:" <<a->message() << std::endl;
+#endif
 		handle_piece_finished_alert(
 			(libtorrent::piece_finished_alert *) a);
 		break;
 	case libtorrent::metadata_received_alert::alert_type:
-		//std::cout << a->message() << std::endl;
+#ifdef _DEBUG
+		std::cout << "[metadata_received_alert:" <<a->message() << std::endl;
+#endif
 		handle_metadata_received_alert(
 			(libtorrent::metadata_received_alert *) a);
 		break;
 	case libtorrent::add_torrent_alert::alert_type:
-		//std::cout << a->message() << std::endl;
+#ifdef _DEBUG
+		std::cout << "[add_torrent_alert:" <<a->message() << std::endl;
+#endif
 		handle_torrent_added_alert(
 			(libtorrent::add_torrent_alert *) a);
 		break;
 	case libtorrent::dht_bootstrap_alert::alert_type:
-		//std::cout << a->message() << std::endl;
+#ifdef _DEBUG
+		std::cout << "[dht_bootstrap_alert:" <<a->message() << std::endl;
+#endif
 		// Force DHT announce because libtorrent won't by itself
 		handle.force_dht_announce();
 		break;
@@ -423,13 +436,16 @@ handle_alert(libtorrent::alert *a) {
 	case libtorrent::tracker_warning_alert::alert_type:
 	case libtorrent::tracker_error_alert::alert_type:
 	case libtorrent::lsd_peer_alert::alert_type:
-		//std::cout << a->message() << std::endl;
+		std::cout << "[(several):" <<a->message() << std::endl;
 		break;
 	case libtorrent::stats_alert::alert_type:
-		//std::cout << a->message() << std::endl;
+		std::cout << "[stats_alert:" <<a->message() << std::endl;
 		break;
 #endif
 	case libtorrent::torrent_removed_alert::alert_type:
+#ifdef _DEBUG
+		std::cout << "[torrent_removed_alert:" <<a->message() << std::endl;
+#endif
 		handle_torrent_removed_alert();
 		break;
 	default:
