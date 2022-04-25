@@ -68,7 +68,7 @@ public:
 
 	void trigger();
 
-	void seek_to_ask (int numPiece, bool& ask_sended);
+	void seek_to_ask (int numPiece, bool& ask_sended, bool& do_read_piece_after);
 	void verify_to_ask (int numPiece);
 
 	bool finished();

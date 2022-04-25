@@ -138,7 +138,7 @@ void Read::copy(int piece, char *buffer) {
 	}
 }
 
-void Read::seek_to_ask (int numPiece, bool& ask_sended) {
+void Read::seek_to_ask (int numPiece, bool& ask_sended, bool& do_read_piece_after) {
 
 	for(auto& part_it: parts)
 	{
@@ -151,11 +151,22 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended) {
 			{
 				if ( ! ask_sended )
 				{
-					// wait that libtorrent has really this piece
-					while ( ! handle.have_piece(numPiece) );
+					// wait that libtorrent has really this piece :
+					// >
+					for(int i=0; i < 50 ; i++)
+						if( handle.have_piece(numPiece) )
+						{
+							handle.read_piece(numPiece);
+							ask_sended=true;
+							do_read_piece_after=false;
+							goto label_continue;
+						}
+					// <
 
-					handle.read_piece(numPiece);
-					ask_sended=true;
+					do_read_piece_after=true;
+
+					label_continue: // label
+						;
 				}
 
 				part_it.state=asked;
@@ -347,13 +358,22 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 	#endif
 
 	bool ask_sended=false;
+	bool do_read_piece_after=false;
 
 	pthread_mutex_lock(&lock);
 
 	for(auto& i: reads)
-		i->seek_to_ask(numPiece, ask_sended);
+		i->seek_to_ask(numPiece, ask_sended, do_read_piece_after);
 
 	pthread_mutex_unlock(&lock);
+
+	if( do_read_piece_after )
+	{
+		// wait that libtorrent has really this piece
+		while ( ! handle.have_piece(numPiece) );
+
+		handle.read_piece(numPiece);
+	}
 }
 
 static void
@@ -771,6 +791,7 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 
 static void
 btfs_destroy( [[maybe_unused]] void *user_data) {
+
 	pthread_mutex_lock(&lock);
 
 	lt::remove_flags_t flags = {};
