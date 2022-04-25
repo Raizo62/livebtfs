@@ -80,6 +80,8 @@ time_t time_of_mount;
 
 static struct btfs_params params;
 
+bool ExitAll=false;
+
 Read::Read(char *buf, int index, off_t offset, size_t size) {
 	auto ti = handle.torrent_file();
 
@@ -153,7 +155,7 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended, bool& do_read_piece_afte
 				{
 					// wait that libtorrent has really this piece :
 					// >
-					for(int i=0; i < 50 ; i++)
+					for(int i=0; i < 50 && ! ExitAll ; i++)
 						if( handle.have_piece(numPiece) )
 						{
 							handle.read_piece(numPiece);
@@ -162,6 +164,8 @@ void Read::seek_to_ask (int numPiece, bool& ask_sended, bool& do_read_piece_afte
 							goto label_continue;
 						}
 					// <
+
+					if( ExitAll ) return;
 
 					do_read_piece_after=true;
 
@@ -370,7 +374,8 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 	if( do_read_piece_after )
 	{
 		// wait that libtorrent has really this piece
-		while ( ! handle.have_piece(numPiece) );
+		while ( ! handle.have_piece(numPiece) )
+			if( ExitAll ) return;
 
 		handle.read_piece(numPiece);
 	}
@@ -791,6 +796,8 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 
 static void
 btfs_destroy( [[maybe_unused]] void *user_data) {
+
+	ExitAll=true;
 
 	pthread_mutex_lock(&lock);
 
