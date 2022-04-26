@@ -12,7 +12,7 @@ It is based on btfs (https://github.com/johang/btfs)
 
   * Download the torrent of the VM (example : an iso of Kali Linux)
 ```bash
-    $ wget https://images.kali.org/kali-linux-2020.1b-live-amd64.iso.torrent
+    $ wget https://kali.download/base-images/kali-2022.1/kali-linux-2022.1-live-amd64.iso.torrent
 ```
 
   * Create a mount point
@@ -22,15 +22,14 @@ It is based on btfs (https://github.com/johang/btfs)
 
   * Mount the VM
 ```bash
-    $ livebtfs kali-linux-2020.1b-live-amd64.iso.torrent mnt/kali
+    $ livebtfs -f kali-linux-2022.1-live-amd64.iso.torrent mnt/kali
 ```
 
-The iso file is "mnt/kali/kali-linux-2020-1b-live-amd64-iso/kali-linux-2020.1b-live-amd64.iso"
+The iso file is "mnt/kali/kali-linux-2022.1-live-amd64.iso"
 
   * Start the VM with your Hypervisor (example : qemu)
 ```bash
-    $ qemu-system-x86_64 -m 1024 -cdrom mnt/kali/kali-linux-2020-1b-live-amd64-iso/kali-linux-2020.1b-live-amd64.iso -enable-kvm -usb -device usb-tablet
-    $ vncviewer 'vnc:[::1]:5900'
+    $ qemu-system-x86_64 -m 1024 -cdrom mnt/kali/kali-linux-2022.1-live-amd64.iso -enable-kvm -usb -device usb-tablet
 ```
 
   * To unmount and shutdown:
