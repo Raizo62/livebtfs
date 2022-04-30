@@ -140,49 +140,30 @@ void Read::copy(int piece, char *buffer) {
 	}
 }
 
-void Read::seek_to_ask (int numPiece, bool& ask_sended, bool& do_read_piece_after) {
+bool Read::seek_to_ask (int numPiece, bool& read_piece_after) {
 
 	for(auto& part_it: parts)
 	{
 		if( part_it.part.piece > numPiece )
-			break;
+			return false;
 
 		if ( part_it.part.piece == numPiece )
 		{
+			if ( part_it.state == asked ) // piece has been already asked then i have already do this seek
+				return true;
+
 			if ( part_it.state == empty )
 			{
-				if ( ! ask_sended )
-				{
-					// wait that libtorrent has really this piece :
-					// >
-					for(int i=0; i < 50 && ! ExitAll ; i++)
-						if( handle.have_piece(numPiece) )
-						{
-							handle.read_piece(numPiece);
-							ask_sended=true;
-							do_read_piece_after=false;
-							goto label_continue;
-						}
-					// <
-
-					if( ExitAll ) return;
-
-					do_read_piece_after=true;
-
-					label_continue: // label
-						;
-				}
-
 				part_it.state=asked;
-			}
-			else if ( part_it.state == asked )
-			{ // piece has been already asked then i learn that
-				ask_sended=true;
+
+				read_piece_after=true;
 			}
 
-			break;
+			return false;
 		}
 	}
+
+	return false;
 }
 
 // logically, 1 piece must be empty when this function is called
@@ -361,17 +342,17 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 	printf("%s: %d\n", __func__, numPiece);
 	#endif
 
-	bool ask_sended=false;
-	bool do_read_piece_after=false;
+	bool read_piece_after=false;
 
 	pthread_mutex_lock(&lock);
 
 	for(auto& i: reads)
-		i->seek_to_ask(numPiece, ask_sended, do_read_piece_after);
+		if( i->seek_to_ask(numPiece, read_piece_after) )
+			break;
 
 	pthread_mutex_unlock(&lock);
 
-	if( do_read_piece_after )
+	if( read_piece_after )
 	{
 		// wait that libtorrent has really this piece
 		while ( ! handle.have_piece(numPiece) )
