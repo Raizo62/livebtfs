@@ -28,8 +28,9 @@ CFLAGS  +=  $(FUSE_CFLAGS) $(LIBTORRENT_CFLAGS)
 FUSE_LIBS = -lfuse -lpthread
 LIBTORRENT_LIBS = -ltorrent-rasterbar
 LIBCURL_LIBS = -lcurl
+CRYPTO_LIBS = -lcrypto
 
-LIBS = $(FUSE_LIBS) $(LIBTORRENT_LIBS) $(LIBCURL_LIBS)
+LIBS = $(FUSE_LIBS) $(LIBTORRENT_LIBS) $(LIBCURL_LIBS) $(CRYPTO_LIBS)
 
 EUID	:= $(shell id -u -r)
 
