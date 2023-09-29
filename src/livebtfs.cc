@@ -659,9 +659,6 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 	lt::add_torrent_params *p = (lt::add_torrent_params *)
 		fuse_get_context()->private_data;
 
-	lt::session_flags_t flags =
-		lt::session::add_default_plugins ;
-
 	lt::alert_category_t alerts =
 #ifdef _DEBUG
 		lt::alert::tracker_notification |
@@ -760,7 +757,7 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 	// read a piece the next time is faster :
 	pack.set_int(lt::settings_pack::tick_interval,30);
 
-	session = new lt::session(pack, flags);
+	session = new lt::session(pack);
 
 	session->add_torrent(*p);
 
