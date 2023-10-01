@@ -40,7 +40,7 @@ The iso file is "mnt/kali/kali-linux-2022.1-live-amd64.iso"
 ## Dependencies (on Linux)
 
 * fuse : "fuse" in Debian / Ubuntu
-* libtorrent : "libtorrent-rasterbar10" in Debian / Ubuntu
+* libtorrent : "libtorrent-rasterbar2.0" in Debian / Ubuntu
 * libcurl : "libcurl4" in Debian / Ubuntu
 
 ## Building from git on a recent Debian/Ubuntu
