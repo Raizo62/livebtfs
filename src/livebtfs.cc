@@ -303,7 +303,7 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 
 	std::vector<std::thread> threads;
 
-	int numPiece=a->piece;
+	int numPiece=static_cast<int>(a->piece);
 	char* buffer=a->buffer.get();
 
 	if (a->error) {
@@ -366,7 +366,7 @@ static void
 handle_torrent_added_alert(lt::add_torrent_alert *a) {
 	pthread_mutex_lock(&lock);
 
-	handle = a->handle;
+	handle = static_cast<lt::torrent_handle>(a->handle);
 
 	if (a->handle.status().has_metadata)
 		setup();
@@ -378,7 +378,7 @@ static void
 handle_metadata_received_alert(lt::metadata_received_alert *a) {
 	pthread_mutex_lock(&lock);
 
-	handle = a->handle;
+	handle = static_cast<lt::torrent_handle>(a->handle);
 
 	setup();
 
@@ -403,28 +403,28 @@ handle_alert(lt::alert *a) {
 		std::cout << "[read_piece_alert:" <<a->message() << std::endl;
 #endif
 		handle_read_piece_alert(
-			(lt::read_piece_alert *) a);
+			static_cast<lt::read_piece_alert*>(a));
 		break;
 	case lt::piece_finished_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[piece_finished_alert:" <<a->message() << std::endl;
 #endif
 		handle_piece_finished_alert(
-			(lt::piece_finished_alert *) a);
+			static_cast<lt::piece_finished_alert*>(a));
 		break;
 	case lt::metadata_received_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[metadata_received_alert:" <<a->message() << std::endl;
 #endif
 		handle_metadata_received_alert(
-			(lt::metadata_received_alert *) a);
+			static_cast<lt::metadata_received_alert*>(a));
 		break;
 	case lt::add_torrent_alert::alert_type:
 #ifdef _DEBUG
 		std::cout << "[add_torrent_alert:" <<a->message() << std::endl;
 #endif
 		handle_torrent_added_alert(
-			(lt::add_torrent_alert *) a);
+			static_cast<lt::add_torrent_alert*>(a));
 		break;
 	case lt::dht_bootstrap_alert::alert_type:
 #ifdef _DEBUG
@@ -656,8 +656,8 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn) {
 
 	time_of_mount = time(NULL);
 
-	lt::add_torrent_params *p = (lt::add_torrent_params *)
-		fuse_get_context()->private_data;
+	lt::add_torrent_params *p = static_cast<lt::add_torrent_params*>(
+		fuse_get_context()->private_data);
 
 	lt::alert_category_t alerts =
 #ifdef _DEBUG
@@ -951,7 +951,7 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 
 static size_t
 handle_http(void *contents, size_t size, size_t nmemb, void *userp) {
-	Array *output = (Array *) userp;
+	Array *output = reinterpret_cast<Array*>(userp);
 
 	// Offset into buffer to write to
 	size_t off = output->size;
@@ -996,7 +996,7 @@ populate_metadata(lt::add_torrent_params& p, const char *arg) {
 		lt::error_code ec;
 
 		p.ti = std::make_shared<lt::torrent_info>(
-			(const char *) output.buf, (int) output.size,
+			reinterpret_cast<const char*>(output.buf), static_cast<int>(output.size),
 			std::ref(ec));
 
 		if (ec)
@@ -1067,7 +1067,7 @@ static int
 btfs_process_arg(void *data, const char *arg, int key,
 		[[maybe_unused]] struct fuse_args *outargs) {
 
-	struct btfs_params* pparams = (struct btfs_params *) data;
+	struct btfs_params* pparams = reinterpret_cast<struct btfs_params*>(data);
 
 	if (key == FUSE_OPT_KEY_NONOPT) {
 		// Number of NONOPT options so far
@@ -1186,7 +1186,7 @@ main(int argc, char *argv[]) {
 	if (!populate_metadata(p, params.metadata))
 		return -1;
 
-	fuse_main(args.argc, args.argv, &btfs_ops, (void *) &p);
+	fuse_main(args.argc, args.argv, &btfs_ops, static_cast<void*>(&p));
 
 	curl_global_cleanup();
 
