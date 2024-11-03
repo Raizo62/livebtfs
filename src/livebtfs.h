@@ -98,7 +98,7 @@ public:
 	}
 
 	bool expand(size_t n) {
-		char* new_buf = (char *) realloc((void *) buf, size += n);
+		char* new_buf = reinterpret_cast<char*>(realloc(reinterpret_cast<void*>(buf), size += n));
 		if( new_buf != NULL )
 		{
 			buf = new_buf;
