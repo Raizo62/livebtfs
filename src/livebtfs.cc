@@ -301,8 +301,6 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 		a->size);
 	#endif
 
-	std::vector<std::thread> threads;
-
 	int numPiece=static_cast<int>(a->piece);
 	char* buffer=a->buffer.get();
 
@@ -318,6 +316,8 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 		pthread_mutex_unlock(&lock);
 
 	} else {
+
+		std::vector<std::thread> threads;
 
 		pthread_mutex_lock(&lock);
 
