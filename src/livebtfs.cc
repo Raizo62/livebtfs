@@ -109,7 +109,7 @@ Read::Read(char *buf, int index, off_t offset, size_t size) {
 }
 
 void Read::fail(int piece) {
-	for(auto& i: parts)
+	for(const auto& i: parts)
 	{
 		if (i.part.piece == piece && i.state != filled)
 		{
@@ -212,7 +212,7 @@ void Read::trigger() {
 
 	pthread_mutex_lock(&lock);
 
-	for(auto& i: parts)
+	for(const auto& i: parts)
 		verify_to_ask(i.part.piece);
 
 	pthread_mutex_unlock(&lock);
