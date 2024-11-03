@@ -29,7 +29,7 @@ string_compare(const std::string& a, const std::string& b) {
 }
 
 static std::list<std::string>
-list(std::string path) {
+list(const std::string& path) {
 	std::list<std::string> files;
 
 	DIR *dp = opendir(path.c_str());
@@ -52,7 +52,7 @@ list(std::string path) {
 }
 
 static void
-scan(std::string indent, const std::string& d, std::string f) {
+scan(const std::string& indent, const std::string& d, const std::string& f) {
 	struct stat s;
 	memset(&s, 0, sizeof (s));
 
