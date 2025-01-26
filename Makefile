@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 #
 NAME	=	livebtfs
-VERSION	=	7.4
+VERSION	=	7.5
 BINDIR	=	$(DESTDIR)/usr/local/bin
 MANDIR	=	$(DESTDIR)/usr/local/man/man1
 
