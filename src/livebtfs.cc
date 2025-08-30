@@ -30,6 +30,8 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <source_location>
+
 #include <fuse3/fuse.h>
 
 // The below pragma lines will silence lots of compiler warnings in the
@@ -300,7 +302,7 @@ static void
 handle_read_piece_alert(lt::read_piece_alert *a) {
 
 	#ifdef _DEBUG
-	std::cout << __func__ << ": piece " << static_cast<int>(a->piece) << " size " << a->size << std::endl;
+	std::cout << std::source_location::current().function_name() << ": piece " << static_cast<int>(a->piece) << " size " << a->size << std::endl;
 	#endif
 
 	auto numPiece=static_cast<int>(a->piece);
@@ -341,7 +343,7 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 	auto numPiece=static_cast<int>(a->piece_index);
 
 	#ifdef _DEBUG
-	std::cout << __func__ << ": " << numPiece << std::endl;
+	std::cout << std::source_location::current().function_name() << ": " << numPiece << std::endl;
 	#endif
 
 	bool read_piece_after=false;
