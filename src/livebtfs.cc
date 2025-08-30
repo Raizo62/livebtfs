@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// FUSE waits a macro #define
 #define FUSE_USE_VERSION 31
 
 //#define _DEBUG
