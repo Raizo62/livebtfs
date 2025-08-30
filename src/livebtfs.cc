@@ -128,14 +128,14 @@ void Read::copy(int piece, char *buffer) {
 			return;
 		if( i.part.piece == piece )
 		{
-			if( i.state != filled )
-				if ( (memcpy(i.buf, buffer + i.part.start, (size_t) i.part.length)) != NULL )
-				{
-					i.state = filled;
-					nbPieceNotFilled--;
-					if ( finished() )
-						isFinished();
-				}
+			if( i.state != filled &&
+				(memcpy(i.buf, buffer + i.part.start, (size_t) i.part.length)) != NULL )
+			{
+				i.state = filled;
+				nbPieceNotFilled--;
+				if ( finished() )
+					isFinished();
+			}
 			return;
 		}
 	}
