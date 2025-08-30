@@ -660,7 +660,7 @@ static void *
 btfs_init( [[maybe_unused]] struct fuse_conn_info *conn, [[maybe_unused]] struct fuse_config *cfg) {
 	pthread_mutex_lock(&lock);
 
-	time_of_mount = time(nullptr);
+	time_of_mount = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
 	lt::add_torrent_params *p = static_cast<lt::add_torrent_params*>(
 		fuse_get_context()->private_data);
