@@ -58,7 +58,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 
 using namespace btfs;
 
-lt::session *session = NULL;
+lt::session *session = nullptr;
 
 lt::torrent_handle handle;
 
@@ -129,7 +129,7 @@ void Read::copy(int piece, char *buffer) {
 		if( i.part.piece == piece )
 		{
 			if( i.state != filled &&
-				(memcpy(i.buf, buffer + i.part.start, (size_t) i.part.length)) != NULL )
+				(memcpy(i.buf, buffer + i.part.start, (size_t) i.part.length)) != nullptr )
 			{
 				i.state = filled;
 				nbPieceNotFilled--;
@@ -273,7 +273,7 @@ setup() {
 			continue;
 
 		char *saveptr = nullptr;
-		for (char *x = strtok_r(p, "/", &saveptr); x; x = strtok_r(NULL, "/", &saveptr)) {
+		for (char *x = strtok_r(p, "/", &saveptr); x; x = strtok_r(nullptr, "/", &saveptr)) {
 			if (strlen(x) == 0)
 				continue;
 
@@ -471,7 +471,7 @@ alert_queue_loop( [[maybe_unused]] void *data) {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldtype);
 
-	pthread_cleanup_push(&alert_queue_loop_destroy, NULL);
+	pthread_cleanup_push(&alert_queue_loop_destroy, nullptr);
 
 	std::vector<lt::alert*> alerts;
 
@@ -488,7 +488,7 @@ alert_queue_loop( [[maybe_unused]] void *data) {
 
 	pthread_cleanup_pop(1);
 
-	return NULL;
+	return nullptr;
 }
 
 static bool
@@ -554,11 +554,11 @@ btfs_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 	pthread_mutex_lock(&lock);
 
-	filler(buf, ".", NULL, 0, (enum fuse_fill_dir_flags)0);
-	filler(buf, "..", NULL, 0, (enum fuse_fill_dir_flags)0);
+	filler(buf, ".", nullptr, 0, (enum fuse_fill_dir_flags)0);
+	filler(buf, "..", nullptr, 0, (enum fuse_fill_dir_flags)0);
 
 	for(auto& i: dirs[path])
-		filler(buf, i.c_str(), NULL, 0, (enum fuse_fill_dir_flags)0);
+		filler(buf, i.c_str(), nullptr, 0, (enum fuse_fill_dir_flags)0);
 
 	pthread_mutex_unlock(&lock);
 
@@ -656,7 +656,7 @@ static void *
 btfs_init( [[maybe_unused]] struct fuse_conn_info *conn, [[maybe_unused]] struct fuse_config *cfg) {
 	pthread_mutex_lock(&lock);
 
-	time_of_mount = time(NULL);
+	time_of_mount = time(nullptr);
 
 	lt::add_torrent_params *p = static_cast<lt::add_torrent_params*>(
 		fuse_get_context()->private_data);
@@ -763,7 +763,7 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn, [[maybe_unused]] struct
 
 	session->add_torrent(*p);
 
-	pthread_create(&alert_thread, NULL, alert_queue_loop, NULL);
+	pthread_create(&alert_thread, nullptr, alert_queue_loop, nullptr);
 
 #ifdef HAVE_PTHREAD_SETNAME_NP
 	pthread_setname_np(alert_thread, "alert");
@@ -771,7 +771,7 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn, [[maybe_unused]] struct
 
 	pthread_mutex_unlock(&lock);
 
-	return NULL;
+	return nullptr;
 }
 
 static void
@@ -796,7 +796,7 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 	pthread_mutex_lock(&wait_torrent_removed_alert); // lock until torrent_removed_alert message
 
 	pthread_cancel(alert_thread);
-	pthread_join(alert_thread, NULL);
+	pthread_join(alert_thread, nullptr);
 
 	delete session;
 
@@ -805,7 +805,7 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 
 static int
 btfs_listxattr(const char *path, char *data, size_t len) {
-	const char *xattrs = NULL;
+	const char *xattrs = nullptr;
 	int xattrslen = 0;
 
 	if (is_root(path)) {
@@ -915,7 +915,7 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 				RETV(perror("Failed to create target"), false);
 		}
 
-		char *crealpath = realpath(ctempl, NULL);
+		char *crealpath = realpath(ctempl, nullptr);
 		if ( ! crealpath )
 			RETV(perror("Failed to expand target"), false);
 
@@ -932,9 +932,9 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 		char* ctempl = strdup(templ.c_str());
 
 		// create the dir /home/user/.livebtfs/livebtfs-Pg5zMp
-		if (ctempl != NULL && mkdtemp(ctempl) != NULL) {
+		if (ctempl != nullptr && mkdtemp(ctempl) != nullptr) {
 
-			char *crealpath = realpath(ctempl, NULL);
+			char *crealpath = realpath(ctempl, nullptr);
 			if ( ! crealpath )
 				RETV(perror("Failed to expand target"), false);
 
@@ -1016,7 +1016,7 @@ populate_metadata(lt::add_torrent_params& p, const char *arg) {
 			RETV(fprintf(stderr, "Parse magnet failed: %s\n",
 				ec.message().c_str()), false);
 	} else {
-		char *r = realpath(uri.c_str(), NULL);
+		char *r = realpath(uri.c_str(), nullptr);
 
 		if (!r)
 			RETV(perror("Find metadata failed"), false);
@@ -1139,7 +1139,7 @@ main(int argc, char *argv[]) {
 
 		// Let FUSE print more versions
 		fuse_opt_add_arg(&args, "--version");
-		fuse_main(args.argc, args.argv, &btfs_ops, NULL);
+		fuse_main(args.argc, args.argv, &btfs_ops, nullptr);
 
 		return 0;
 	}
@@ -1153,7 +1153,7 @@ main(int argc, char *argv[]) {
 
 			// Let FUSE print more help
 			fuse_opt_add_arg(&args, "-ho");
-			fuse_main(args.argc, args.argv, &btfs_ops, NULL);
+			fuse_main(args.argc, args.argv, &btfs_ops, nullptr);
 		}
 
 		return 0;
@@ -1174,7 +1174,7 @@ main(int argc, char *argv[]) {
 
 	std::string target;
 
-	if (!populate_target(target, params.data_directory, params.keep ? params.metadata : NULL))
+	if (!populate_target(target, params.data_directory, params.keep ? params.metadata : nullptr))
 		return -1;
 
 	lt::add_torrent_params p;

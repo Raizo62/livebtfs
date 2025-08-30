@@ -99,7 +99,7 @@ public:
 
 	bool expand(size_t n) {
 		auto new_buf = reinterpret_cast<char*>(realloc(reinterpret_cast<void*>(buf), size += n));
-		if( new_buf != NULL )
+		if( new_buf != nullptr )
 		{
 			buf = new_buf;
 			return true;

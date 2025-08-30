@@ -91,15 +91,15 @@ main(int argc, char *argv[]) {
 
 	for (int i = 1; i < argc; i++) {
 #ifdef __APPLE__
-		if (getxattr(argv[i], XATTR_IS_BTFS, NULL, 0, 0, 0) < 0) {
+		if (getxattr(argv[i], XATTR_IS_BTFS, nullptr, 0, 0, 0) < 0) {
 #else
-		if (getxattr(argv[i], XATTR_IS_BTFS, NULL, 0) < 0) {
+		if (getxattr(argv[i], XATTR_IS_BTFS, nullptr, 0) < 0) {
 #endif
 			std::cout << argv[0] << ": " << argv[i] << " is not a " << PACKAGE << " mount: " << strerror(errno) << std::endl;
 			return 2;
 		}
 
-		char *root = realpath(argv[i], NULL);
+		char *root = realpath(argv[i], nullptr);
 
 		if (!root) {
 			perror("failed to canonicalize path");
