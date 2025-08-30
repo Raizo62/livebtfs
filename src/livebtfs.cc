@@ -302,7 +302,7 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 	std::cout << __func__ << ": piece " << static_cast<int>(a->piece) << " size " << a->size << std::endl;
 	#endif
 
-	int numPiece=static_cast<int>(a->piece);
+	auto numPiece=static_cast<int>(a->piece);
 	char* buffer=a->buffer.get();
 
 	if (a->error) {
@@ -337,7 +337,7 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 static void
 handle_piece_finished_alert(lt::piece_finished_alert *a) {
 
-	int numPiece=static_cast<int>(a->piece_index);
+	auto numPiece=static_cast<int>(a->piece_index);
 
 	#ifdef _DEBUG
 	std::cout << __func__ << ": " << numPiece << std::endl;
@@ -591,7 +591,7 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 	if (params.browse_only)
 		return -EACCES;
 
-	Read *r = new Read(buf, files[path], offset, size);
+	auto r = new Read(buf, files[path], offset, size);
 
 	pthread_mutex_lock(&lock);
 
@@ -953,7 +953,7 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 
 static size_t
 handle_http(void *contents, size_t size, size_t nmemb, void *userp) {
-	Array *output = reinterpret_cast<Array*>(userp);
+	auto output = reinterpret_cast<Array*>(userp);
 
 	// Offset into buffer to write to
 	size_t off = output->size;
@@ -1069,7 +1069,7 @@ static int
 btfs_process_arg(void *data, const char *arg, int key,
 		[[maybe_unused]] struct fuse_args *outargs) {
 
-	struct btfs_params* pparams = reinterpret_cast<struct btfs_params*>(data);
+	auto pparams = reinterpret_cast<struct btfs_params*>(data);
 
 	if (key == FUSE_OPT_KEY_NONOPT) {
 		// Number of NONOPT options so far
