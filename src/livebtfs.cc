@@ -479,7 +479,7 @@ alert_queue_loop( [[maybe_unused]] void *data) {
 
 	std::vector<lt::alert*> alerts;
 
-	while (1) {
+	while (true) {
 		// wait_for_alert is unlock as soon as new alert
 		if (!session->wait_for_alert(lt::seconds(3600)))
 			continue;
