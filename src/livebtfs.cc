@@ -469,7 +469,8 @@ alert_queue_loop_destroy( [[maybe_unused]] void *data) {
 
 static void*
 alert_queue_loop( [[maybe_unused]] void *data) {
-	int oldstate, oldtype;
+	int oldstate;
+	int oldtype;
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, &oldstate);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, &oldtype);
