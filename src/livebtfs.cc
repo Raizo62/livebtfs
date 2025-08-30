@@ -183,8 +183,8 @@ void Read::verify_to_ask (int numPiece) {
 	{
 		for(auto& part_it: read_it->parts)
 		{
-			if( part_it.part.piece > numPiece )
-				break;
+			if( part_it.part.piece < numPiece )
+				continue;
 
 			if ( part_it.part.piece == numPiece )
 			{
@@ -202,9 +202,9 @@ void Read::verify_to_ask (int numPiece) {
 				{ // piece has been already asked then i learn that
 					ask_sended=true;
 				}
-
-				break;
 			}
+
+			break;
 		}
 	}
 }
