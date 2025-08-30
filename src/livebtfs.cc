@@ -272,7 +272,8 @@ setup() {
 		if (!p)
 			continue;
 
-		for (char *x = strtok(p, "/"); x; x = strtok(NULL, "/")) {
+		char *saveptr = nullptr;
+		for (char *x = strtok_r(p, "/", &saveptr); x; x = strtok_r(NULL, "/", &saveptr)) {
 			if (strlen(x) == 0)
 				continue;
 
@@ -281,7 +282,7 @@ setup() {
 				dirs["/"].insert(x);
 			else
 				// Non-root dir <-> children mapping
-		 		dirs[parent].insert(x);
+				dirs[parent].insert(x);
 
 			parent += "/";
 			parent += x;
