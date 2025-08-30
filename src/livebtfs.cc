@@ -26,7 +26,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 
-#include <pthread.h>
+#include <thread>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -318,7 +318,7 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 
 	} else {
 
-		std::vector<std::thread> threads;
+		std::vector<std::jthread> threads;
 
 		pthread_mutex_lock(&lock);
 
