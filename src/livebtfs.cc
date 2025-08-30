@@ -251,7 +251,7 @@ setup() {
 
 	//bas : initialiser les priorites de telechargement des blocs a 0
 	//i.e. pas de telechargement
-	std::vector<int>::size_type  numpieces =  (std::vector<int>::size_type) ti->num_pieces();
+	auto numpieces =  (std::vector<int>::size_type) ti->num_pieces();
 	//std::vector<int> prios(numpieces); // default value is already : 0
 	std::vector<lt::download_priority_t> prios(numpieces,0); // default value : 0
 /*
