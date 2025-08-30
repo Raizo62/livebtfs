@@ -62,7 +62,7 @@ scan(const std::string& indent, const std::string& d, const std::string& f) {
 		return;
 
 	if (S_ISDIR(s.st_mode)) {
-		printf("%s%s/\n", indent.c_str(), f.c_str());
+		std::cout << indent << f << "/" << std::endl;
 
 		std::list<std::string> l = list(p);
 
@@ -78,14 +78,14 @@ scan(const std::string& indent, const std::string& d, const std::string& f) {
 		else
 			progress = 100;
 
-		printf("%s%s (%3ld%%)\n", indent.c_str(), f.c_str(), progress);
+		std::cout << indent << f << " (" << progress << "%)" << std::endl;
 	}
 }
 
 int
 main(int argc, char *argv[]) {
-	if (argc < 2) {
-		printf("Usage: %s MOUNT_POINTS...\n", argv[0]);
+	 if (argc < 2) {
+		std::cout << "Usage: " << argv[0] << " MOUNT_POINTS..." << std::endl;
 		return 1;
 	}
 
@@ -95,8 +95,7 @@ main(int argc, char *argv[]) {
 #else
 		if (getxattr(argv[i], XATTR_IS_BTFS, NULL, 0) < 0) {
 #endif
-			printf("%s: %s is not a " PACKAGE " mount: %s\n", argv[0], argv[i],
-				strerror(errno));
+			std::cout << argv[0] << ": " << argv[i] << " is not a " << PACKAGE << " mount: " << strerror(errno) << std::endl;
 			return 2;
 		}
 

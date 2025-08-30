@@ -244,8 +244,8 @@ int Read::read() {
 
 static void
 setup() {
-	printf("Prototype version.\n");
-	printf("Got metadata. Now ready to start downloading.\n");
+	std::cout << "Prototype version." << std::endl;
+	std::cout << "Got metadata. Now ready to start downloading." << std::endl;
 
 	auto ti = handle.torrent_file();
 
@@ -298,8 +298,7 @@ static void
 handle_read_piece_alert(lt::read_piece_alert *a) {
 
 	#ifdef _DEBUG
-	printf("%s: piece %d size %d\n", __func__, static_cast<int>(a->piece),
-		a->size);
+	std::cout << __func__ << ": piece " << static_cast<int>(a->piece) << " size " << a->size << std::endl;
 	#endif
 
 	int numPiece=static_cast<int>(a->piece);
@@ -340,7 +339,7 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 	int numPiece=static_cast<int>(a->piece_index);
 
 	#ifdef _DEBUG
-	printf("%s: %d\n", __func__, numPiece);
+	std::cout << __func__ << ": " << numPiece << std::endl;
 	#endif
 
 	bool read_piece_after=false;
@@ -1086,25 +1085,25 @@ btfs_process_arg(void *data, const char *arg, int key,
 
 static void
 print_help() {
-	printf("usage: " PACKAGE " [options] metadata mountpoint\n");
-	printf("\n");
-	printf(PACKAGE " options:\n");
-	printf("    --version -v           show version information\n");
-	printf("    --help -h              show this message\n");
-	printf("    --help-fuse            print all fuse options\n");
-	printf("    --browse-only -b       download metadata only\n");
-	printf("    --keep -k              keep files after unmount\n");
-	printf("    --utp-only             do not use TCP\n");
-	printf("    --data-directory=dir   directory in which to put btfs data\n");
-	printf("    --min-port=N           start of listen port range\n");
-	printf("    --max-port=N           end of listen port range\n");
-	printf("    --max-download-rate=N  max download rate (in kB/s)\n");
-	printf("    --max-upload-rate=N    max upload rate (in kB/s)\n");
-	printf("    --disable-dht          disable the usage of DHT\n");
-	printf("    --disable-upnp         disable the UPnP service\n");
-	printf("    --disable-natpmp       disable the NAT-PMP service\n");
-	printf("    --disable-lsd          disable Local Service Discovery\n");
-	printf("    --disable-all          same as : --disable-dht --disable-upnp --disable-natpmp --disable-lsd\n");
+	std::cout << "usage: " PACKAGE " [options] metadata mountpoint" << std::endl;
+	std::cout << std::endl;
+	std::cout << PACKAGE " options:" << std::endl;
+	std::cout << "    --version -v           show version information" << std::endl;
+	std::cout << "    --help -h              show this message" << std::endl;
+	std::cout << "    --help-fuse            print all fuse options" << std::endl;
+	std::cout << "    --browse-only -b       download metadata only" << std::endl;
+	std::cout << "    --keep -k              keep files after unmount" << std::endl;
+	std::cout << "    --utp-only             do not use TCP" << std::endl;
+	std::cout << "    --data-directory=dir   directory in which to put btfs data" << std::endl;
+	std::cout << "    --min-port=N           start of listen port range" << std::endl;
+	std::cout << "    --max-port=N           end of listen port range" << std::endl;
+	std::cout << "    --max-download-rate=N  max download rate (in kB/s)" << std::endl;
+	std::cout << "    --max-upload-rate=N    max upload rate (in kB/s)" << std::endl;
+	std::cout << "    --disable-dht          disable the usage of DHT" << std::endl;
+	std::cout << "    --disable-upnp         disable the UPnP service" << std::endl;
+	std::cout << "    --disable-natpmp       disable the NAT-PMP service" << std::endl;
+	std::cout << "    --disable-lsd          disable Local Service Discovery" << std::endl;
+	std::cout << "    --disable-all          same as : --disable-dht --disable-upnp --disable-natpmp --disable-lsd" << std::endl;
 }
 
 int
@@ -1134,8 +1133,8 @@ main(int argc, char *argv[]) {
 		params.help = 1;
 
 	if (params.version) {
-		printf(PACKAGE " version: " VERSION "\n");
-		printf("libtorrent version: " LIBTORRENT_VERSION "\n");
+		std::cout << PACKAGE " version: " VERSION "\n";
+		std::cout << "libtorrent version: " LIBTORRENT_VERSION "\n";
 
 		// Let FUSE print more versions
 		fuse_opt_add_arg(&args, "--version");
@@ -1149,7 +1148,7 @@ main(int argc, char *argv[]) {
 		print_help();
 
 		if (params.help_fuse) {
-			printf("\n");
+			std::cout << std::endl;
 
 			// Let FUSE print more help
 			fuse_opt_add_arg(&args, "-ho");
