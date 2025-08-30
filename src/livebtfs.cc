@@ -957,7 +957,7 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 
 static size_t
 handle_http(void *contents, size_t size, size_t nmemb, void *userp) {
-	auto output = reinterpret_cast<Array*>(userp);
+	auto output = static_cast<Array*>(userp);
 
 	// Offset into buffer to write to
 	size_t off = output->size;
@@ -1073,7 +1073,7 @@ static int
 btfs_process_arg(void *data, const char *arg, int key,
 		[[maybe_unused]] struct fuse_args *outargs) {
 
-	auto pparams = reinterpret_cast<struct btfs_params*>(data);
+	auto pparams = static_cast<struct btfs_params*>(data);
 
 	if (key == FUSE_OPT_KEY_NONOPT) {
 		// Number of NONOPT options so far
