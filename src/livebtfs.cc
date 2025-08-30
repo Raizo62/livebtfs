@@ -284,14 +284,15 @@ setup() {
 				// Non-root dir <-> children mapping
 				dirs[parent].insert(x);
 
-			parent += "/";
-			parent += x;
+			parent.append("/").append(x);
 		}
 
 		free(p);
 
 		// Path <-> file index mapping
-		files["/" + ti->files().file_path(i)] = i;
+		std::string fullpath = "/";
+		fullpath.append(ti->files().file_path(i));
+		files[fullpath] = i;
 	}
 }
 
@@ -906,7 +907,7 @@ populate_target(std::string& target, const char *data_directory, const char *nam
 	{	// the name of the folder with all bytes is the name of torrent file
 
 		// templ = /home/user/.livebtfs/file.torrent
-		templ += "/" + std::string(basename(name_file_torrent));
+		templ.append("/").append(basename(name_file_torrent));
 
 		// create the dir /home/user/.livebtfs/file.torrent
 		const char* ctempl=templ.c_str();
