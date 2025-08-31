@@ -21,8 +21,6 @@
 #define ENOATTR ENODATA
 #endif
 
-using namespace btfs;
-
 static bool
 string_compare(std::string_view a, std::string_view b) {
 	return a.compare(b) == 0;

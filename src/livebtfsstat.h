@@ -5,8 +5,4 @@
 #define XATTR_IS_BTFS_ROOT "user.btfs.is_btfs_root"
 #define XATTR_IS_BTFS "user.btfs.is_btfs"
 
-namespace btfs
-{
-}
-
 #endif
