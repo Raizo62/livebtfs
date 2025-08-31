@@ -447,9 +447,6 @@ handle_alert(lt::alert *a) {
 	case lt::lsd_peer_alert::alert_type:
 		std::cout << "[(several):" <<a->message() << std::endl;
 		break;
-	case lt::stats_alert::alert_type:
-		std::cout << "[stats_alert:" <<a->message() << std::endl;
-		break;
 #endif
 	case lt::torrent_removed_alert::alert_type:
 #ifdef _DEBUG
@@ -667,7 +664,6 @@ btfs_init( [[maybe_unused]] struct fuse_conn_info *conn, [[maybe_unused]] struct
 	lt::alert_category_t alerts =
 #ifdef _DEBUG
 		lt::alert::tracker_notification |
-		lt::alert::stats_notification |
 		lt::alert::connect_notification |
 		lt::alert::ip_block_notification |
 		lt::alert::incoming_request_notification |
