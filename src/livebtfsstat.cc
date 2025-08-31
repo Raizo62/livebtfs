@@ -37,7 +37,7 @@ list(const std::string& path) {
 	if (!dp)
 		return files;
 
-	for (struct dirent *ep = readdir(dp); ep; ep = readdir(dp)) {
+	for (const struct dirent *ep = readdir(dp); ep; ep = readdir(dp)) {
 		std::string f(ep->d_name);
 
 		if (f != "." && f != "..")
