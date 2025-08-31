@@ -25,7 +25,6 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 
 #include <pthread.h>
-#include <thread>
 
 #include "libtorrent/config.hpp"
 #include <libtorrent/peer_request.hpp>

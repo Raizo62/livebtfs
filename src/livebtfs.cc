@@ -26,7 +26,6 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 
-#include <thread>
 #include <sys/types.h>
 #include <sys/stat.h>
 
