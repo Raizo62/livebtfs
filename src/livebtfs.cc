@@ -105,7 +105,7 @@ Read::Read(char *buf, int index, off_t offset, size_t sizeToRead) {
 
 		parts.push_back(Part(part, buf));
 
-		sizeToRead -= (size_t) part.length;
+		sizeToRead -= static_cast<size_t>(part.length);
 		offset += part.length;
 		buf += part.length;
 	}
@@ -131,7 +131,7 @@ void Read::copy(int piece, char *buffer) {
 		if( i.part.piece == piece )
 		{
 			if( i.state != filled &&
-				(memcpy(i.buf, buffer + i.part.start, (size_t) i.part.length)) != nullptr )
+				(memcpy(i.buf, buffer + i.part.start, static_cast<size_t>(i.part.length))) != nullptr )
 			{
 				i.state = filled;
 				nbPieceNotFilled--;
@@ -536,7 +536,7 @@ btfs_getattr(const char *path, struct stat *stbuf, [[maybe_unused]] struct fuse_
 		handle.file_progress(progress,
 			lt::torrent_handle::piece_granularity);
 
-		stbuf->st_blocks = progress[(size_t) files[path]] / 512;
+		stbuf->st_blocks = progress[static_cast<size_t>(files[path])] / 512;
 		stbuf->st_mode = S_IFREG | 0444;
 		stbuf->st_size = file_size;
 	}
@@ -829,10 +829,10 @@ btfs_listxattr(const char *path, char *data, size_t len) {
 	if (len == 0)
 		return xattrslen;
 
-	if (len < (size_t) xattrslen)
+	if (len < static_cast<size_t>(xattrslen))
 		return -ERANGE;
 
-	memcpy(data, xattrs, (size_t) xattrslen);
+	memcpy(data, xattrs, static_cast<size_t>(xattrslen));
 
 	return xattrslen;
 }
@@ -868,10 +868,10 @@ btfs_getxattr(const char *path, const char *key, char *value, size_t len) {
 	if (position >= (uint32_t) xattrlen)
 		return 0;
 
-	if (len < (size_t) xattrlen - position)
+	if (len < static_cast<size_t>(xattrlen - position))
 		return -ERANGE;
 
-	memcpy(value, xattr + position, (size_t) xattrlen - position);
+	memcpy(value, xattr + position, static_cast<size_t>(xattrlen - position));
 
 	return xattrlen - (int) position;
 }
