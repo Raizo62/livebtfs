@@ -987,7 +987,7 @@ populate_metadata(lt::add_torrent_params& p, const char *arg) {
 
 		curl_easy_setopt(ch, CURLOPT_URL, uri.c_str());
 		curl_easy_setopt(ch, CURLOPT_WRITEFUNCTION, handle_http); 
-		curl_easy_setopt(ch, CURLOPT_WRITEDATA, (void *) &output); 
+		curl_easy_setopt(ch, CURLOPT_WRITEDATA, reinterpret_cast<void *>(&output));
 		curl_easy_setopt(ch, CURLOPT_USERAGENT, PACKAGE "/" VERSION);
 		curl_easy_setopt(ch, CURLOPT_FOLLOWLOCATION, 1);
 
