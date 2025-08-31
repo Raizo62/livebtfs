@@ -93,7 +93,7 @@ Read::Read(char *buf, int index, off_t offset, size_t sizeToRead) {
 
 	while (sizeToRead > 0 && offset < file_size) {
 		lt::peer_request part = ti->map_file(index, offset,
-			(int) sizeToRead);
+			static_cast<int>(sizeToRead));
 
 		part.length = std::min(
 			ti->piece_size(part.piece) - part.start,
@@ -872,7 +872,7 @@ btfs_getxattr(const char *path, const char *key, char *value, size_t len) {
 
 	memcpy(value, xattr + position, static_cast<size_t>(xattrlen - position));
 
-	return xattrlen - (int) position;
+	return xattrlen - static_cast<int>(position);
 }
 
 static bool
