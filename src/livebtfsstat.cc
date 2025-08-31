@@ -24,7 +24,7 @@
 using namespace btfs;
 
 static bool
-string_compare(const std::string& a, const std::string& b) {
+string_compare(std::string_view a, std::string_view b) {
 	return a.compare(b) == 0;
 }
 

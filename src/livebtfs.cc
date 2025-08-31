@@ -971,7 +971,7 @@ handle_http(void *contents, size_t size, size_t nmemb, void *userp) {
 	return nmemb * size;
 }
 
-bool starts_with(const std::string& str, const std::string& subStr)
+bool starts_with(std::string_view str, std::string_view subStr)
 {
 	return (str.compare(0, subStr.length(), subStr) == 0);
 }
