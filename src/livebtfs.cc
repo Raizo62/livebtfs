@@ -123,7 +123,7 @@ void Read::fail(int piece) {
 	}
 }
 
-void Read::copy(int piece, char *buffer) {
+void Read::copy(int piece, const char *buffer) {
 	for(auto& i: parts)
 	{
 		if( i.part.piece > piece )
