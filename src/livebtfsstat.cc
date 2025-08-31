@@ -66,9 +66,10 @@ scan(const std::string& indent, const std::string& d, const std::string& f) {
 
 		std::list<std::string> l = list(p);
 
-		for (auto i = l.begin(); i != l.end(); ++i) {
-			scan(indent + "    ", p, *i);
+		for (const auto& entry : l) {
+			scan(indent + "    ", p, entry);
 		}
+
 	} else if (S_ISREG(s.st_mode)) {
 		// Download progress for this file (in percent)
 		long progress;
