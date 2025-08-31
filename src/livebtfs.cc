@@ -591,11 +591,11 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 	if (params.browse_only)
 		return -EACCES;
 
-	auto r = new Read(buf, files[path], offset, size);
+	auto r = std::make_unique<Read>(buf, files[path], offset, size);
 
 	pthread_mutex_lock(&lock);
 
-	reads.push_back(r);
+	reads.push_back(r.get());
 
 	pthread_mutex_unlock(&lock);
 
@@ -604,11 +604,11 @@ btfs_read(const char *path, char *buf, size_t size, off_t offset,
 
 	pthread_mutex_lock(&lock);
 
-	reads.remove(r);
+	reads.remove(r.get());
 
 	pthread_mutex_unlock(&lock);
 
-	delete r;
+	// r will be automatically deleted when it goes out of scope
 
 	return s;
 }
