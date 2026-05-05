@@ -318,17 +318,12 @@ handle_read_piece_alert(lt::read_piece_alert *a) {
 
 	} else {
 
-		std::vector<std::jthread> threads;
-
 		pthread_mutex_lock(&lock);
 
 		for(auto& i: reads)
-			threads.emplace_back( &Read::copy, i,numPiece,buffer);
+			i->copy(numPiece, buffer);
 
-		for(auto& i: threads)
-			i.join();
-
-		// must be after "join" because "btfs_reads" want also to read reads/parts :
+		// must be after all copies because btfs_read also reads reads/parts :
 		pthread_mutex_unlock(&lock);
 
 	}
