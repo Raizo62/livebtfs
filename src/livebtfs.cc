@@ -780,19 +780,22 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 
 	session->remove_torrent(handle, flags);
 
-	pthread_mutex_lock(&wait_torrent_removed_alert); // initialize to lock to the next time
+	pthread_mutex_lock(&wait_torrent_removed_alert); // first lock to arm the wait
 
 	for(auto& i: reads)
 		i->isFinished();
 
-	pthread_mutex_lock(&wait_torrent_removed_alert); // lock until torrent_removed_alert message
+	// Release lock before waiting: the alert thread may need to acquire lock
+	// to process pending alerts (read_piece_alert, etc.) before it can reach
+	// and dispatch torrent_removed_alert. Holding lock here would deadlock.
+	pthread_mutex_unlock(&lock);
+
+	pthread_mutex_lock(&wait_torrent_removed_alert); // block until torrent_removed_alert
 
 	pthread_cancel(alert_thread);
 	pthread_join(alert_thread, nullptr);
 
 	delete session;
-
-	pthread_mutex_unlock(&lock);
 }
 
 static int
