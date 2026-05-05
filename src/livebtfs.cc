@@ -76,7 +76,9 @@ std::map<std::string,std::set<std::string> > dirs;
 
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
-pthread_mutex_t wait_torrent_removed_alert = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t wait_torrent_removed_alert_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t wait_torrent_removed_alert = PTHREAD_COND_INITIALIZER;
+bool torrent_removed_received = false;
 
 // Time used as "last modified" time
 time_t time_of_mount;
@@ -384,7 +386,10 @@ handle_metadata_received_alert(lt::metadata_received_alert *a) {
 
 static void
 handle_torrent_removed_alert() {
-	pthread_mutex_unlock(&wait_torrent_removed_alert);
+	pthread_mutex_lock(&wait_torrent_removed_alert_lock);
+	torrent_removed_received = true;
+	pthread_cond_signal(&wait_torrent_removed_alert);
+	pthread_mutex_unlock(&wait_torrent_removed_alert_lock);
 }
 
 static void
@@ -779,9 +784,11 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 	if (!params.keep)
 		flags |= lt::session::delete_files;
 
-	session->remove_torrent(handle, flags);
+	pthread_mutex_lock(&wait_torrent_removed_alert_lock);
+	torrent_removed_received = false;
+	pthread_mutex_unlock(&wait_torrent_removed_alert_lock);
 
-	pthread_mutex_lock(&wait_torrent_removed_alert); // first lock to arm the wait
+	session->remove_torrent(handle, flags);
 
 	for(auto& i: reads)
 		i->isFinished();
@@ -791,7 +798,10 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 	// and dispatch torrent_removed_alert. Holding lock here would deadlock.
 	pthread_mutex_unlock(&lock);
 
-	pthread_mutex_lock(&wait_torrent_removed_alert); // block until torrent_removed_alert
+	pthread_mutex_lock(&wait_torrent_removed_alert_lock);
+	while (!torrent_removed_received)
+		pthread_cond_wait(&wait_torrent_removed_alert, &wait_torrent_removed_alert_lock);
+	pthread_mutex_unlock(&wait_torrent_removed_alert_lock);
 
 	pthread_cancel(alert_thread);
 	pthread_join(alert_thread, nullptr);
