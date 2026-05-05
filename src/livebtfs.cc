@@ -82,7 +82,7 @@ time_t time_of_mount;
 
 static struct btfs_params params;
 
-bool ExitAll=false;
+std::atomic<bool> ExitAll = false;
 
 Read::Read(char *buf, int index, off_t offset, size_t sizeToRead) {
 	auto ti = handle.torrent_file();
