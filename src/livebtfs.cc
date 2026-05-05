@@ -74,6 +74,9 @@ std::list<Read*> reads;
 std::map<std::string,int> files;
 std::map<std::string,std::set<std::string> > dirs;
 
+// Pieces that already emitted piece_finished_alert.
+std::vector<unsigned char> finished_pieces;
+
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
 
 pthread_mutex_t wait_torrent_removed_alert_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -86,6 +89,22 @@ time_t time_of_mount;
 static struct btfs_params params;
 
 std::atomic<bool> ExitAll = false;
+
+static void mark_piece_finished(int numPiece) {
+	auto index = static_cast<size_t>(numPiece);
+
+	if (index < finished_pieces.size())
+		finished_pieces[index] = 1;
+}
+
+static bool piece_ready_to_read(int numPiece) {
+	if (handle.have_piece(numPiece))
+		return true;
+
+	auto index = static_cast<size_t>(numPiece);
+
+	return index < finished_pieces.size() && finished_pieces[index] != 0;
+}
 
 Read::Read(char *buf, int index, off_t offset, size_t sizeToRead) {
 	auto ti = handle.torrent_file();
@@ -172,7 +191,7 @@ bool Read::seek_to_ask (int numPiece, bool& read_piece_after) {
 // logically, 1 piece must be empty when this function is called
 void Read::verify_to_ask (int numPiece) {
 
-	if ( ! handle.have_piece(numPiece) )
+	if ( ! piece_ready_to_read(numPiece) )
 	{
 		// priority of numPiece changes from 0 to 7 (7 : top priority)
 		handle.piece_priority(numPiece,7);
@@ -250,6 +269,7 @@ setup() {
 	std::cout << "Got metadata. Now ready to start downloading." << std::endl;
 
 	auto ti = handle.torrent_file();
+	finished_pieces.assign(static_cast<size_t>(ti->num_pieces()), 0);
 
 	//bas : initialiser les priorites de telechargement des blocs a 0
 	//i.e. pas de telechargement
@@ -345,11 +365,11 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 
 	pthread_mutex_lock(&lock);
 
+	mark_piece_finished(numPiece);
+
 	for(auto& i: reads)
 		if( i->seek_to_ask(numPiece, read_piece_after) )
 			break;
-
-	pthread_mutex_unlock(&lock);
 
 	if( read_piece_after )
 	{
@@ -359,6 +379,8 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 		// have_piece() does not need to be checked here.
 		handle.read_piece(numPiece);
 	}
+
+	pthread_mutex_unlock(&lock);
 }
 
 static void
@@ -787,6 +809,7 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 	pthread_mutex_lock(&wait_torrent_removed_alert_lock);
 	torrent_removed_received = false;
 	pthread_mutex_unlock(&wait_torrent_removed_alert_lock);
+	finished_pieces.clear();
 
 	session->remove_torrent(handle, flags);
 
