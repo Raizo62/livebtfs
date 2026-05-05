@@ -100,13 +100,19 @@ public:
 	}
 
 	bool expand(size_t n) {
-		auto new_buf = static_cast<char*>(realloc(static_cast<void*>(buf), size += n));
-		if( new_buf != nullptr )
-		{
-			buf = new_buf;
-			return true;
-		}
-		return false;
+		size_t new_size = size + n;
+
+		if (new_size < size)
+			return false;
+
+		auto new_buf = static_cast<char*>(realloc(static_cast<void*>(buf), new_size));
+
+		if (new_buf == nullptr && new_size != 0)
+			return false;
+
+		buf = new_buf;
+		size = new_size;
+		return true;
 	}
 
 	char *buf;
