@@ -87,8 +87,6 @@ std::atomic<bool> ExitAll = false;
 Read::Read(char *buf, int index, off_t offset, size_t sizeToRead) {
 	auto ti = handle.torrent_file();
 
-	pthread_mutex_lock (&waitFinished); // lock the mutex waitFinished
-
 	int64_t file_size = ti->files().file_size(index);
 
 	while (sizeToRead > 0 && offset < file_size) {
@@ -221,7 +219,7 @@ void Read::trigger() {
 }
 
 inline void Read::isFinished() {
-	pthread_mutex_unlock (&waitFinished);
+	waitFinished.release();
 }
 
 inline bool Read::finished() {
@@ -235,7 +233,7 @@ int Read::read() {
 	// Trigger reads of finished pieces
 	trigger();
 
-	pthread_mutex_lock (&waitFinished); // lock because already lock by himself
+	waitFinished.acquire(); // wait until all parts are filled or failed
 
 	if (failed)
 		return -EIO;

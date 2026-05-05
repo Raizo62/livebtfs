@@ -23,6 +23,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <list>
 #include <fstream>
+#include <semaphore>
 
 #include <pthread.h>
 
@@ -81,7 +82,7 @@ private:
 	int size=0;
 	int nbPieceNotFilled=0;
 
-	pthread_mutex_t waitFinished = PTHREAD_MUTEX_INITIALIZER;
+	std::binary_semaphore waitFinished{0};
 
 	std::vector<Part> parts;
 };
