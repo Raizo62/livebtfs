@@ -15,6 +15,7 @@
 #include <string>
 #include <iostream>
 
+#include "config.h"
 #include "livebtfsstat.h"
 
 #ifndef ENOATTR

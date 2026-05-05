@@ -52,6 +52,7 @@ along with BTFS.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <curl/curl.h>
 
+#include "config.h"
 #include "livebtfs.h"
 
 #define RETV(s, v) { s; return v; };
