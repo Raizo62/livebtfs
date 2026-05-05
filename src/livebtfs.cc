@@ -350,10 +350,10 @@ handle_piece_finished_alert(lt::piece_finished_alert *a) {
 
 	if( read_piece_after )
 	{
-		// wait that libtorrent has really this piece
-		while ( ! handle.have_piece(numPiece) )
-			if( ExitAll ) return;
-
+		// piece_finished_alert guarantees the piece is hash-checked and
+		// available in libtorrent's cache. read_piece() reads from cache
+		// without requiring the piece to be flushed to disk, so
+		// have_piece() does not need to be checked here.
 		handle.read_piece(numPiece);
 	}
 }
