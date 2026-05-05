@@ -130,6 +130,11 @@ Read::Read(char *buf, int index, off_t offset, size_t sizeToRead) {
 	}
 }
 
+void Read::cancel() {
+	failed = true;
+	isFinished();
+}
+
 void Read::fail(int piece) {
 	for(const auto& i: parts)
 	{
@@ -241,6 +246,10 @@ void Read::trigger() {
 }
 
 inline void Read::isFinished() {
+	if (notified)
+		return;
+
+	notified = true;
 	waitFinished.release();
 }
 
@@ -814,7 +823,7 @@ btfs_destroy( [[maybe_unused]] void *user_data) {
 	session->remove_torrent(handle, flags);
 
 	for(auto& i: reads)
-		i->isFinished();
+		i->cancel();
 
 	// Release lock before waiting: the alert thread may need to acquire lock
 	// to process pending alerts (read_piece_alert, etc.) before it can reach

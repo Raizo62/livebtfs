@@ -62,6 +62,7 @@ class Read
 public:
 	Read(char *buf, int index, off_t offset, size_t sizeToRead);
 
+	void cancel();
 	void fail(int piece);
 
 	void copy(int piece, const char *buffer);
@@ -78,6 +79,7 @@ public:
 
 private:
 	bool failed = false;
+	bool notified = false;
 
 	int size=0;
 	int nbPieceNotFilled=0;
